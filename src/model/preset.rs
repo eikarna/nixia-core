@@ -1,8 +1,8 @@
 use super::TinyLmConfig;
 
 pub const DEV_SMOKE: &str = "dev-smoke";
-pub const REDMI_NANO: &str = "redmi-nano";
-pub const REDMI_TINY: &str = "redmi-tiny";
+pub const NIXIA_MICRO: &str = "nixia-micro";
+pub const NIXIA_TINY: &str = "nixia-tiny";
 
 pub fn preset(name: &str, vocab_size: usize, pad_token_id: usize) -> Option<TinyLmConfig> {
     match name {
@@ -16,7 +16,7 @@ pub fn preset(name: &str, vocab_size: usize, pad_token_id: usize) -> Option<Tiny
             dropout: 0.1,
             pad_token_id,
         }),
-        REDMI_NANO => Some(TinyLmConfig {
+        NIXIA_MICRO => Some(TinyLmConfig {
             vocab_size,
             max_seq_len: 96,
             d_model: 192,
@@ -26,7 +26,7 @@ pub fn preset(name: &str, vocab_size: usize, pad_token_id: usize) -> Option<Tiny
             dropout: 0.1,
             pad_token_id,
         }),
-        REDMI_TINY => Some(TinyLmConfig {
+        NIXIA_TINY => Some(TinyLmConfig {
             vocab_size,
             max_seq_len: 128,
             d_model: 256,
@@ -41,5 +41,5 @@ pub fn preset(name: &str, vocab_size: usize, pad_token_id: usize) -> Option<Tiny
 }
 
 pub fn names() -> &'static [&'static str] {
-    &[DEV_SMOKE, REDMI_NANO, REDMI_TINY]
+    &[DEV_SMOKE, NIXIA_MICRO, NIXIA_TINY]
 }

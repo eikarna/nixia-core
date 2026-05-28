@@ -1,6 +1,6 @@
 # Nixia Dataset Guide
 
-Tujuan dataset Nixia adalah chat Bahasa Indonesia kasual/roleplay ringan yang tetap bersih, legal, dan cocok untuk model kecil Redmi 4X.
+Tujuan dataset Nixia adalah chat Bahasa Indonesia kasual/roleplay ringan yang tetap bersih, legal, dan cocok untuk model kecil on-device.
 
 ## Sumber yang sudah dicek
 
@@ -231,11 +231,11 @@ cargo run --release -- tokenizer \
   --vocab-size 6000
 
 cargo run --release -- train \
-  --preset redmi-nano \
+  --preset nixia-micro \
   --corpus data/curated/train_corpus.txt \
   --valid data/curated/valid_corpus.txt \
   --vocab artifacts/vocab.txt \
-  --artifacts artifacts/redmi-nano \
+  --artifacts artifacts/nixia-micro \
   --epochs 10 \
   --batch-size 16
 ```
@@ -249,7 +249,7 @@ Gunakan prompt tetap untuk membandingkan output sebelum/sesudah fine-tune:
 
 ```bash
 python tools/eval_prompts.py \
-  --artifacts artifacts/redmi-nano \
+  --artifacts artifacts/nixia-micro \
   --vocab artifacts/vocab.txt \
   --output data/curated/prompt_eval.md
 ```
@@ -264,11 +264,11 @@ Ada dua mode lanjutan:
 
 ```bash
 cargo run --release -- train \
-  --preset redmi-nano \
+  --preset nixia-micro \
   --corpus data/curated/train_corpus.txt \
   --valid data/curated/valid_corpus.txt \
   --vocab artifacts/vocab.txt \
-  --artifacts artifacts/redmi-nano \
+  --artifacts artifacts/nixia-micro \
   --resume-epoch 10 \
   --epochs 15 \
   --batch-size 16
@@ -278,12 +278,12 @@ cargo run --release -- train \
 
 ```bash
 cargo run --release -- train \
-  --preset redmi-nano \
+  --preset nixia-micro \
   --corpus data/curated/train_corpus.txt \
   --valid data/curated/valid_corpus.txt \
   --vocab artifacts/vocab.txt \
-  --artifacts artifacts/redmi-nano-style \
-  --init-from artifacts/redmi-nano \
+  --artifacts artifacts/nixia-micro-style \
+  --init-from artifacts/nixia-micro \
   --epochs 2 \
   --batch-size 16 \
   --lr 0.00001

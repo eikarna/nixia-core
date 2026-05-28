@@ -88,7 +88,7 @@ def main() -> int:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run Nixia prompt regression prompts")
     parser.add_argument("--prompts", default="data/eval_prompts.txt")
-    parser.add_argument("--artifacts", default="artifacts/redmi-nano")
+    parser.add_argument("--artifacts", default="artifacts/nixia-micro")
     parser.add_argument("--vocab", default="artifacts/vocab.txt")
     parser.add_argument("--output", default="data/curated/prompt_eval.md")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown")

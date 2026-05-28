@@ -77,7 +77,7 @@ fn train_model(args: &[String]) -> Result<()> {
     let valid_path = flag(args, "--valid");
     let vocab_path = flag(args, "--vocab").unwrap_or("artifacts/vocab.txt");
     let artifact_dir = flag(args, "--artifacts").unwrap_or("artifacts/run");
-    let preset_name = flag(args, "--preset").unwrap_or(preset::REDMI_NANO);
+    let preset_name = flag(args, "--preset").unwrap_or(preset::NIXIA_MICRO);
 
     let batch_size = flag(args, "--batch-size")
         .map(parse_usize)
@@ -274,12 +274,12 @@ fn print_help() {
         "nixia - tiny Indonesian causal language model\n\n\
 Commands:\n\
   tokenizer --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --vocab-size 8000\n\
-  train --preset redmi-nano --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run\n\
+  train --preset nixia-micro --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run\n\
   train --init-from artifacts/base --artifacts artifacts/finetune --corpus data/curated/train_corpus.txt --valid data/curated/valid_corpus.txt\n\
   train --resume-epoch 10 --epochs 15 --artifacts artifacts/run --corpus data/curated/train_corpus.txt --valid data/curated/valid_corpus.txt\n\
   eval --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run\n\
   generate --chat --artifacts artifacts/run --vocab artifacts/vocab.txt --prompt \"halo, kamu siapa?\"\n\n\
-Presets: dev-smoke, redmi-nano, redmi-tiny\n\
+Presets: dev-smoke, nixia-micro, nixia-tiny\n\
 Training uses Burn Flex CPU for stable, portable checkpoints.\n\
 Use --init-from for fine-tuning compatible model weights, or --resume-epoch to continue an existing checkpoint."
     );

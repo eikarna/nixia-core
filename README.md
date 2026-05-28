@@ -1,7 +1,7 @@
 # Nixia
 
 Nixia adalah proyek awal tiny causal language model Bahasa Indonesia menggunakan Rust dan Burn.
-Target desainnya adalah model kecil untuk eksperimen on-device, terutama perangkat Android low-end.
+Target desainnya adalah model kecil untuk eksperimen on-device, terutama perangkat Android low-end seperti Xiaomi Redmi 4X.
 
 ## Isi proyek
 
@@ -44,10 +44,10 @@ Prompt tetap ada di `data/eval_prompts.txt`; output default ditulis ke `data/cur
 
 ## Profil model yang disarankan
 
-Untuk Redmi 4X, mulai dari profil kecil dahulu:
+Untuk target low-end, mulai dari profil kecil dahulu:
 
 ```bash
---preset redmi-nano
+--preset nixia-micro
 ```
 
 Detail preset:
@@ -64,7 +64,7 @@ d_ff: 512
 Jika performa masih cukup:
 
 ```bash
---preset redmi-tiny
+--preset nixia-tiny
 ```
 
 Detail preset:
@@ -192,15 +192,15 @@ cargo run --release -- tokenizer ^
   --vocab-size 6000
 ```
 
-4. Train dari nol dengan preset `redmi-nano`:
+4. Train dari nol dengan preset `nixia-micro`:
 
 ```bat
 cargo run --release -- train ^
-  --preset redmi-nano ^
+  --preset nixia-micro ^
   --corpus data/curated/train_corpus.txt ^
   --valid data/curated/valid_corpus.txt ^
   --vocab artifacts/vocab-long.txt ^
-  --artifacts artifacts/redmi-nano-long ^
+  --artifacts artifacts/nixia-micro-long ^
   --epochs 15 ^
   --batch-size 16 ^
   --lr 0.00005
@@ -210,11 +210,11 @@ Jika RAM/waktu tidak cukup, turunkan `--batch-size 8`. Jika training terhenti se
 
 ```bat
 cargo run --release -- train ^
-  --preset redmi-nano ^
+  --preset nixia-micro ^
   --corpus data/curated/train_corpus.txt ^
   --valid data/curated/valid_corpus.txt ^
   --vocab artifacts/vocab-long.txt ^
-  --artifacts artifacts/redmi-nano-long ^
+  --artifacts artifacts/nixia-micro-long ^
   --resume-epoch 10 ^
   --epochs 15 ^
   --batch-size 16 ^
@@ -227,7 +227,7 @@ cargo run --release -- train ^
 cargo run --release -- eval ^
   --corpus data/curated/valid_corpus.txt ^
   --vocab artifacts/vocab-long.txt ^
-  --artifacts artifacts/redmi-nano-long
+  --artifacts artifacts/nixia-micro-long
 ```
 
 Opsional, cek train loss untuk melihat jarak train-vs-valid:
@@ -236,14 +236,14 @@ Opsional, cek train loss untuk melihat jarak train-vs-valid:
 cargo run --release -- eval ^
   --corpus data/curated/train_corpus.txt ^
   --vocab artifacts/vocab-long.txt ^
-  --artifacts artifacts/redmi-nano-long
+  --artifacts artifacts/nixia-micro-long
 ```
 
 6. Jalankan prompt regression eval:
 
 ```bat
 python tools/eval_prompts.py ^
-  --artifacts artifacts/redmi-nano-long ^
+  --artifacts artifacts/nixia-micro-long ^
   --vocab artifacts/vocab-long.txt ^
   --output data/curated/prompt_eval_long.md
 ```
@@ -253,7 +253,7 @@ python tools/eval_prompts.py ^
 ```bat
 cargo run --release -- generate ^
   --chat ^
-  --artifacts artifacts/redmi-nano-long ^
+  --artifacts artifacts/nixia-micro-long ^
   --vocab artifacts/vocab-long.txt ^
   --prompt "aku capek banget hari ini, rasanya pengen tidur tapi pikiran rame" ^
   --tokens 64 ^
@@ -266,8 +266,8 @@ cargo run --release -- generate ^
 Contoh prompt lain:
 
 ```bat
-cargo run --release -- generate --chat --artifacts artifacts/redmi-nano-long --vocab artifacts/vocab-long.txt --prompt "halo, kamu siapa?" --tokens 64
-cargo run --release -- generate --chat --artifacts artifacts/redmi-nano-long --vocab artifacts/vocab-long.txt --prompt "temenin aku diem dulu boleh?" --tokens 64
+cargo run --release -- generate --chat --artifacts artifacts/nixia-micro-long --vocab artifacts/vocab-long.txt --prompt "halo, kamu siapa?" --tokens 64
+cargo run --release -- generate --chat --artifacts artifacts/nixia-micro-long --vocab artifacts/vocab-long.txt --prompt "temenin aku diem dulu boleh?" --tokens 64
 ```
 
 Tanda training layak diteruskan: valid loss turun/stabil, prompt eval makin natural, dan output tidak makin repetitif. Stop atau turunkan LR kalau train loss turun tetapi valid loss naik.
@@ -283,12 +283,12 @@ Contoh fine-tune aman ke artifact baru:
 
 ```bash
 cargo run --release -- train \
-  --preset redmi-nano \
+  --preset nixia-micro \
   --corpus data/curated/train_corpus.txt \
   --valid data/curated/valid_corpus.txt \
   --vocab artifacts/vocab.txt \
-  --artifacts artifacts/redmi-nano-v2 \
-  --init-from artifacts/redmi-nano \
+  --artifacts artifacts/nixia-micro-v2 \
+  --init-from artifacts/nixia-micro \
   --epochs 2 \
   --batch-size 16 \
   --lr 0.00001
@@ -298,11 +298,11 @@ Contoh true resume dari epoch 10 ke 15:
 
 ```bash
 cargo run --release -- train \
-  --preset redmi-nano \
+  --preset nixia-micro \
   --corpus data/curated/train_corpus.txt \
   --valid data/curated/valid_corpus.txt \
   --vocab artifacts/vocab.txt \
-  --artifacts artifacts/redmi-nano \
+  --artifacts artifacts/nixia-micro \
   --resume-epoch 10 \
   --epochs 15 \
   --batch-size 16
