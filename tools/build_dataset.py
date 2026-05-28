@@ -16,8 +16,11 @@ but for 100k+ dialogues a proper HF `datasets`/parquet pipeline is faster.
 from __future__ import annotations
 
 import argparse
+import ast
+import csv
 import hashlib
 import html
+import io
 import json
 import random
 import re
@@ -33,6 +36,7 @@ from urllib.request import Request, urlopen
 
 
 HF_API = "https://huggingface.co/api/datasets/{}"
+HF_RAW_FILE = "https://huggingface.co/datasets/{}/resolve/main/{}"
 HF_ROWS_API = "https://datasets-server.huggingface.co/rows"
 USER_AGENT = "nixia-dataset-builder/0.1 (+https://huggingface.co)"
 
@@ -114,7 +118,7 @@ def main() -> int:
             stats[source_id]["skipped_license_policy"] += 1
             continue
 
-        if source.get("type") == "hf_rows" and not args.offline:
+        if source.get("type", "").startswith("hf_") and source.get("repo") and not args.offline:
             if not verify_hf_license(source):
                 stats[source_id]["skipped_license_mismatch"] += 1
                 continue
@@ -186,6 +190,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report", default="data/curated/build_report.json")
     parser.add_argument("--sources", default="", help="Comma-separated source ids; default: enabled sources")
     parser.add_argument("--max-rows-per-source", type=int, default=300)
+    parser.add_argument(
+        "--source-limit",
+        action="append",
+        default=[],
+        metavar="SOURCE_ID=N",
+        help="Override --max-rows-per-source for one source. Can be repeated.",
+    )
     parser.add_argument("--target-dialogues", type=int, default=0)
     parser.add_argument("--valid-ratio", type=float, default=0.05)
     parser.add_argument("--min-score", type=float, default=1.0)
@@ -206,7 +217,28 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--offline", action="store_true", help="Skip live HF license verification")
     parser.add_argument("--dry-run", action="store_true")
-    return parser.parse_args()
+    args = parser.parse_args()
+    args.source_limits = parse_source_limits(args.source_limit)
+    return args
+
+
+def parse_source_limits(values: list[str]) -> dict[str, int]:
+    limits = {}
+    for value in values:
+        if "=" not in value:
+            raise SystemExit(f"invalid --source-limit {value!r}; expected SOURCE_ID=N")
+        source_id, raw_limit = value.split("=", 1)
+        source_id = source_id.strip()
+        if not source_id:
+            raise SystemExit(f"invalid --source-limit {value!r}; source id is empty")
+        try:
+            limit = int(raw_limit)
+        except ValueError as error:
+            raise SystemExit(f"invalid --source-limit {value!r}; limit must be an integer") from error
+        if limit < 0:
+            raise SystemExit(f"invalid --source-limit {value!r}; limit must be >= 0")
+        limits[source_id] = limit
+    return limits
 
 
 def resolve_under_root(root: Path, path: str) -> Path:
@@ -288,6 +320,15 @@ def http_get_json(url: str, timeout: int) -> dict[str, Any]:
         raise SystemExit(f"failed to fetch {url}: {error}") from error
 
 
+def http_get_text(url: str, timeout: int) -> str:
+    request = Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            return response.read().decode("utf-8")
+    except (HTTPError, URLError, TimeoutError) as error:
+        raise SystemExit(f"failed to fetch {url}: {error}") from error
+
+
 def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespace) -> Iterable[dict[str, Any]]:
     source_type = source["type"]
     if source_type == "local_text":
@@ -295,10 +336,18 @@ def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespac
         yield {"text": path.read_text(encoding="utf-8")}
         return
 
+    if source_type == "hf_raw_jsonl":
+        yield from iter_jsonl_rows(raw_hf_file_text(source), source_limit(source, args))
+        return
+
+    if source_type == "hf_raw_csv":
+        yield from iter_csv_rows(raw_hf_file_text(source), source_limit(source, args))
+        return
+
     if source_type != "hf_rows":
         return
 
-    max_rows = max(0, args.max_rows_per_source)
+    max_rows = max(0, source_limit(source, args))
     if max_rows == 0:
         return
 
@@ -333,6 +382,45 @@ def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespac
             time.sleep(0.05)
 
 
+def raw_hf_file_text(source: dict[str, Any]) -> str:
+    return http_get_text(HF_RAW_FILE.format(source["repo"], source["file"]), timeout=120)
+
+
+def source_limit(source: dict[str, Any], args: argparse.Namespace) -> int:
+    return args.source_limits.get(source["id"], args.max_rows_per_source)
+
+
+def iter_jsonl_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
+    if max_rows <= 0:
+        return
+    emitted = 0
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if max_rows and emitted >= max_rows:
+            break
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict):
+            yield row
+            emitted += 1
+
+
+def iter_csv_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
+    if max_rows <= 0:
+        return
+    emitted = 0
+    reader = csv.DictReader(io.StringIO(text))
+    for row in reader:
+        if max_rows and emitted >= max_rows:
+            break
+        yield dict(row)
+        emitted += 1
+
+
 def adapt_row(
     source: dict[str, Any],
     row: dict[str, Any],
@@ -342,16 +430,18 @@ def adapt_row(
     if adapter == "nixia_text":
         yield from parse_nixia_text(row.get("text", ""))
     elif adapter == "hf_conversations":
-        turns = []
-        for turn in row.get("conversations") or []:
-            role = turn.get("role")
-            content = turn.get("content", "")
-            if role == "user":
-                turns.append((ROLE_USER, content))
-            elif role in {"assistant", "model", "bot"}:
-                turns.append((ROLE_CHAR, content))
+        turns = conversation_turns(row.get("conversations") or [])
         if turns:
             yield turns
+    elif adapter == "legacy_conversations":
+        turns = conversation_turns(parse_conversations_value(row.get("conversations")))
+        if turns:
+            yield turns
+    elif adapter == "qa_pair":
+        question = first_text_field(row, source.get("question_fields") or ["question", "query", "prompt"])
+        answer = first_text_field(row, source.get("answer_fields") or ["answer", "response", "text"])
+        if question and answer:
+            yield [(ROLE_USER, question), (ROLE_CHAR, concise_answer(answer))]
     elif adapter == "hf_input_output":
         if subset_rejected(source, row):
             return
@@ -406,6 +496,47 @@ def first_text_field(row: dict[str, Any], field_names: Iterable[str]) -> str:
         if isinstance(value, str) and value.strip():
             return value
     return ""
+
+
+def parse_conversations_value(value: Any) -> list[dict[str, Any]]:
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, dict)]
+    if not isinstance(value, str) or not value.strip():
+        return []
+    for parser in (json.loads, ast.literal_eval):
+        try:
+            parsed = parser(value)
+        except (ValueError, SyntaxError, json.JSONDecodeError):
+            continue
+        if isinstance(parsed, list):
+            return [item for item in parsed if isinstance(item, dict)]
+    return []
+
+
+def conversation_turns(raw_turns: Iterable[dict[str, Any]]) -> list[tuple[str, str]]:
+    turns = []
+    for turn in raw_turns:
+        role = str(turn.get("role") or turn.get("from") or "").lower()
+        content = str(turn.get("content") or turn.get("value") or "")
+        if role in {"human", "user"}:
+            turns.append((ROLE_USER, content))
+        elif role in {"gpt", "assistant", "model", "bot"}:
+            turns.append((ROLE_CHAR, content))
+
+    half = len(turns) // 2
+    if half > 0 and len(turns) % 2 == 0 and turns[:half] == turns[half:]:
+        turns = turns[:half]
+    return turns
+
+
+def concise_answer(text: str) -> str:
+    text = re.sub(r"[*_`#>-]", " ", str(text))
+    text = re.sub(r"\s+", " ", text).strip()
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+    answer = " ".join(sentence for sentence in sentences[:2] if sentence).strip()
+    if len(answer) > 360:
+        answer = answer[:360].rsplit(" ", 1)[0].strip() + "."
+    return answer
 
 
 def clean_social_post(text: str) -> str:
@@ -509,6 +640,12 @@ def clean_dialogue(
         cleaned_turns.append((role, text))
 
     cleaned_turns = normalize_turn_order(cleaned_turns)
+    for _, text in cleaned_turns:
+        reason = reject_reason(text)
+        if reason:
+            stats[f"reject_merged_{reason}"] += 1
+            return None
+
     if len(cleaned_turns) < 2:
         stats["reject_too_few_turns"] += 1
         return None
@@ -639,10 +776,16 @@ def synthesize_dialogues(
         ("gak pede", "pede bisa nyusul. yang penting kamu tetap nyoba dulu."),
         ("bete", "bete kenapa, hmm? cerita aja, aku dengerin kok."),
         ("lapar tapi mager", "cek mie, telur, atau roti dulu. mode survival wkwk."),
+        ("bingung milih", "kita bikin pilihan kecil dulu. yang paling mendesak yang mana?"),
+        ("takut salah", "takut salah itu wajar. coba kita lihat risiko paling kecilnya dulu."),
+        ("pengen ditemenin", "boleh, aku temenin. kita gak harus bahas hal berat sekarang."),
+        ("kesepian", "kesepian tuh nyebelin ya. aku di sini, mau cerita atau ngobrol ringan aja?"),
+        ("males mulai", "mulainya kecil aja. lima menit dulu juga udah termasuk maju."),
     ]
     openers = [
         "aku {mood}", "duh aku {mood} nih", "hari ini aku {mood}",
         "hmm aku {mood} banget", "loh kok aku {mood} ya",
+        "kayaknya aku lagi {mood}", "jujur aku {mood} dari tadi", "aku tuh {mood}, gimana ya",
     ]
     closers = [
         "iyaaa makasih ya", "enggaa kok, aku cuma pengen ditemenin", "wkwk kamu ada-ada aja",
@@ -655,6 +798,10 @@ def synthesize_dialogues(
         "kita pelan-pelan aja ya, yang penting kamu gak sendirian.",
         "kalau mau diem dulu juga boleh, aku tetap nemenin.",
         "aku di sini. kamu boleh cerita sedikit demi sedikit.",
+        "coba mulai dari satu hal yang paling kerasa sekarang.",
+        "gak harus rapi ceritanya, yang penting keluar dulu sedikit.",
+        "mau aku bantu urutin, atau kamu cuma pengen ditemenin?",
+        "ambil napas dulu, terus kita pilih langkah paling kecil.",
     ]
     local_followups = [
         "gapapa euy, aku temenin dulu pelan-pelan.",
@@ -663,6 +810,14 @@ def synthesize_dialogues(
         "iso kok, yang penting jangan dipendem sendiri terus.",
     ]
     roleplay = ["*senyum kecil*", "*duduk di sebelahmu*", "*nada pelan*", "*mengangguk pelan*"]
+    second_prefixes = [
+        "iyaa, aku di sini.",
+        "oke, aku tetap nemenin.",
+        "gapapa, pelan-pelan aja.",
+        "aku paham, sini dulu.",
+        "boleh, kita santai dulu.",
+        "tenang, gak perlu buru-buru.",
+    ]
 
     for _ in range(count):
         mood, answer = rng.choice(moods)
@@ -675,7 +830,7 @@ def synthesize_dialogues(
             (ROLE_USER, opener),
             (ROLE_CHAR, f"{rp} {answer}"),
             (ROLE_USER, second_user),
-            (ROLE_CHAR, f"iyaa, aku di sini. {followup}"),
+            (ROLE_CHAR, f"{rng.choice(second_prefixes)} {followup}"),
         ]
         yield turns
 
@@ -705,6 +860,7 @@ def write_outputs(
             "valid_ratio": args.valid_ratio,
             "min_score": args.min_score,
             "max_rows_per_source": args.max_rows_per_source,
+            "source_limits": args.source_limits,
             "target_dialogues": args.target_dialogues,
             "synthesize_requested": args.synthesize,
             "synthetic_dialogues": synthetic_accepted,

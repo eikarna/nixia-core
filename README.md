@@ -141,6 +141,24 @@ python tools/build_dataset.py --sources nixia_seed,lorthgyu_indonesian_chat,w11w
 
 Setelah itu wajib jalankan `python tools/audit_dataset.py` dan spot-check manual.
 
+Dataset kandidat untuk long training lokal bisa dibuat dengan mix lebih besar berikut:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,suryaadhi_ppmb_qa_id,w11wo_twitter_indonesia_sarcastic,gabrielb_python_qa,seacrowd_seadialogues \
+  --allow-sharealike \
+  --max-rows-per-source 6000 \
+  --source-limit seacrowd_seadialogues=1200 \
+  --synthesize 1500 \
+  --valid-ratio 0.1 \
+  --min-score 0.8 \
+  --offline
+
+python tools/audit_dataset.py
+```
+
+Catatan: command ini memasukkan sumber CC-BY-SA, jadi distribusi dataset/model turunan mungkin punya kewajiban atribusi/ShareAlike. Untuk penggunaan privat lokal, tetap simpan report lisensi.
+
 ## Lanjut training, fine-tune, atau dari nol
 
 - Pakai `--resume-epoch N` untuk melanjutkan run yang sama dari checkpoint `artifacts/run/checkpoint/*-N.mpk`. Ini memuat model, optimizer, dan scheduler state.

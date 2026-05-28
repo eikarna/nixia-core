@@ -17,10 +17,9 @@
     {
       "id": "lorthgyu_indonesian_chat",
       "enabled": true,
-      "type": "hf_rows",
+      "type": "hf_raw_jsonl",
       "repo": "LorthGyu/indonesian-chat",
-      "config": "default",
-      "split": "train",
+      "file": "data/train.jsonl",
       "adapter": "hf_conversations",
       "license": "mit",
       "license_class": "permissive",
@@ -28,12 +27,25 @@
       "quality": "200 multi-turn Indonesian chats; casual/formal/mixed; direct conversational schema"
     },
     {
+      "id": "lorthgyu_indonesian_qa",
+      "enabled": false,
+      "type": "hf_raw_jsonl",
+      "repo": "LorthGyu/indonesian-qa",
+      "file": "data/train.jsonl",
+      "adapter": "qa_pair",
+      "question_fields": ["question"],
+      "answer_fields": ["answer"],
+      "license": "mit",
+      "license_class": "permissive",
+      "use": "general_qa_small",
+      "quality": "200 Indonesian QA pairs; useful as small knowledge/style supplement, not primary casual chat"
+    },
+    {
       "id": "w11wo_twitter_indonesia_sarcastic",
       "enabled": false,
-      "type": "hf_rows",
+      "type": "hf_raw_csv",
       "repo": "w11wo/twitter_indonesia_sarcastic",
-      "config": "default",
-      "split": "train",
+      "file": "data/train.csv",
       "adapter": "hf_social_post",
       "text_fields": ["tweet"],
       "license": "apache-2.0",
@@ -51,6 +63,32 @@
         "anies",
         "ganjar"
       ]
+    },
+    {
+      "id": "suryaadhi_ppmb_qa_id",
+      "enabled": false,
+      "type": "hf_raw_jsonl",
+      "repo": "suryaadhi/ppmb-qa-dataset",
+      "file": "ppmb-qa-id.jsonl",
+      "adapter": "qa_pair",
+      "question_fields": ["query"],
+      "answer_fields": ["answer"],
+      "license": "mit",
+      "license_class": "permissive",
+      "use": "helpdesk_qa",
+      "quality": "353 Indonesian helpdesk/social-style admission QA rows; answers are shortened by builder and source is domain-specific"
+    },
+    {
+      "id": "gabrielb_python_qa",
+      "enabled": false,
+      "type": "hf_raw_csv",
+      "repo": "gabrielb/QA-Python-Programming-Indonesia",
+      "file": "original_dataset.csv",
+      "adapter": "legacy_conversations",
+      "license": "apache-2.0",
+      "license_class": "permissive",
+      "use": "technical_qa_supplement",
+      "quality": "5.6K Indonesian Python QA rows; optional small supplement only because it can shift Nixia toward coding assistant behavior"
     },
     {
       "id": "indonlp_cendol_chat_v2",

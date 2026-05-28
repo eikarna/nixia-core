@@ -8,7 +8,10 @@ Tujuan dataset Nixia adalah chat Bahasa Indonesia kasual/roleplay ringan yang te
 |---|---|---:|---:|---|
 | `nixia_seed` | `data/sample_corpus.txt` | project-local | ya | Seed manual gaya Nixia |
 | `lorthgyu_indonesian_chat` | HF `LorthGyu/indonesian-chat` | MIT | ya | 200 multi-turn chat Indo |
+| `lorthgyu_indonesian_qa` | HF `LorthGyu/indonesian-qa` | MIT | tidak | QA umum kecil sebagai suplemen pengetahuan ringan |
 | `w11wo_twitter_indonesia_sarcastic` | HF `w11wo/twitter_indonesia_sarcastic` | Apache-2.0 | tidak | Social-style seed dari tweet termask; wajib filter/spot-check karena raw social media noisy/politis |
+| `suryaadhi_ppmb_qa_id` | HF `suryaadhi/ppmb-qa-dataset` | MIT | tidak | QA helpdesk Indonesia; jawaban dipendekkan builder karena domain spesifik dan sering panjang |
+| `gabrielb_python_qa` | HF `gabrielb/QA-Python-Programming-Indonesia` | Apache-2.0 | tidak | QA teknis Python; pakai sebagai suplemen kecil agar Nixia tidak berubah jadi coding assistant |
 | `indonlp_cendol_chat_v2` | HF `indonlp/cendol_collection_v2` | Apache-2.0 | tidak | Besar; cocok untuk pretraining/instruction, bukan default chat kasual |
 | `seacrowd_seadialogues` | HF `SEACrowd/SEADialogues` | CC-BY-SA-4.0 | perlu `--allow-sharealike` | Multi-turn cultural dialogue; bagus untuk lokal/kultural |
 | `indonlp_nusax_mt` | HF `indonlp/NusaX-MT` | CC-BY-SA-4.0 | tidak | Bagus untuk tokenizer/dialek, bukan chat utama |
@@ -122,6 +125,41 @@ python tools/audit_dataset.py
 ```
 
 Kalau hasil audit menunjukkan template repetition tinggi atau banyak contoh politis/toxic, jangan fine-tune dulu; tambah curated manual yang lebih natural.
+
+## Build kandidat long training
+
+Command berikut menghasilkan corpus yang lulus audit awal untuk long training lokal di mesin development:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,suryaadhi_ppmb_qa_id,w11wo_twitter_indonesia_sarcastic,gabrielb_python_qa,seacrowd_seadialogues \
+  --allow-sharealike \
+  --max-rows-per-source 6000 \
+  --source-limit seacrowd_seadialogues=1200 \
+  --synthesize 1500 \
+  --valid-ratio 0.1 \
+  --min-score 0.8 \
+  --offline
+
+python tools/audit_dataset.py
+```
+
+Hasil audit terakhir pada mesin ini:
+
+```text
+status=pass
+readiness=longer_training_candidate
+train=6258
+valid=695
+synthetic_ratio=21.4%
+train_valid_overlap=0
+```
+
+Catatan penting:
+
+- `--allow-sharealike` memasukkan `seacrowd_seadialogues` berlisensi CC-BY-SA; simpan `build_report.json` untuk atribusi dan pahami kewajiban ShareAlike jika dataset/model didistribusikan.
+- `gabrielb_python_qa` besar dan domain teknis; jika output Nixia jadi terlalu coding-assistant, kurangi dengan `--source-limit gabrielb_python_qa=1500` atau hapus sumber itu.
+- `--source-limit SOURCE_ID=N` membatasi satu sumber tanpa menurunkan sumber lain, berguna untuk mencegah satu dataset mendominasi.
 
 Jika butuh variasi lokal, gunakan style pack terpisah seperti `data/style_packs/local_flavor_sample.txt`, atau aktifkan generator lokal secara eksplisit:
 
