@@ -163,14 +163,20 @@ def main() -> int:
             break
 
     if args.synthesize > 0:
-        for dialogue in synthesize_dialogues(args.synthesize, rng, args.include_local_flavor):
+        synthetic_source_id = f"synthetic_{args.synth_mode.replace('-', '_')}"
+        for dialogue in synthesize_dialogues(
+            args.synthesize,
+            rng,
+            args.include_local_flavor,
+            args.synth_mode,
+        ):
             if args.target_dialogues and len(dialogues) >= args.target_dialogues:
                 break
             accepted = accept_candidate(
                 dialogues,
                 seen,
                 stats,
-                "synthetic_nixia_style",
+                synthetic_source_id,
                 dialogue,
                 args.min_score,
             )
@@ -207,6 +213,12 @@ def parse_args() -> argparse.Namespace:
         help="Add a local corpus/style-pack file in <user>/<char> format. Can be repeated.",
     )
     parser.add_argument("--synthesize", type=int, default=0, help="Add generated style-seed dialogues")
+    parser.add_argument(
+        "--synth-mode",
+        choices=["nixia-style", "chat-clean"],
+        default="nixia-style",
+        help="Synthetic generator profile. chat-clean is safer for casual/chat-only training.",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--allow-sharealike", action="store_true")
     parser.add_argument("--allow-noncommercial", action="store_true")
@@ -767,6 +779,19 @@ def synthesize_dialogues(
     count: int,
     rng: random.Random,
     include_local_flavor: bool,
+    mode: str,
+) -> Iterable[list[tuple[str, str]]]:
+    if mode == "chat-clean":
+        yield from synthesize_chat_clean_dialogues(count, rng)
+        return
+
+    yield from synthesize_nixia_style_dialogues(count, rng, include_local_flavor)
+
+
+def synthesize_nixia_style_dialogues(
+    count: int,
+    rng: random.Random,
+    include_local_flavor: bool,
 ) -> Iterable[list[tuple[str, str]]]:
     moods = [
         ("capek", "istirahat dulu yaa. gak harus kuat terus kok."),
@@ -835,6 +860,185 @@ def synthesize_dialogues(
         yield turns
 
 
+def synthesize_chat_clean_dialogues(
+    count: int,
+    rng: random.Random,
+) -> Iterable[list[tuple[str, str]]]:
+    support_scenarios = [
+        (
+            "aku capek banget hari ini",
+            "kedengarannya berat ya. kamu mau cerita bagian yang paling bikin capek dulu?",
+            "rasanya semua numpuk jadi satu",
+            "kita urai satu-satu aja. pilih yang paling mendesak dulu.",
+        ),
+        (
+            "aku overthinking dari tadi",
+            "sini tarik napas dulu. pikiran mana yang paling muter sekarang?",
+            "takut semuanya jadi berantakan",
+            "kita bedain dulu mana yang fakta dan mana yang baru kemungkinan.",
+        ),
+        (
+            "aku pengen cerita tapi takut ganggu",
+            "kamu gak ganggu kok. cerita pelan-pelan aja, aku dengerin.",
+            "aku takut ceritaku ribet",
+            "gak harus rapi. mulai dari satu hal yang paling kerasa dulu.",
+        ),
+        (
+            "aku lagi gak pede sama diri sendiri",
+            "lagi keras banget ya sama diri sendiri. ada hal tertentu yang bikin kamu ngerasa begitu?",
+            "aku ngerasa kalah terus",
+            "bandingin diri memang capek. hari ini satu langkah kecil aja cukup.",
+        ),
+        (
+            "aku kecewa sama diri sendiri",
+            "kecewa itu tanda kamu peduli, tapi jangan sampai kamu menghukum diri terus.",
+            "aku bingung harus mulai dari mana",
+            "mulai dari memperbaiki satu hal kecil yang masih bisa kamu pegang.",
+        ),
+        (
+            "aku merasa sendirian banget",
+            "sendirian di tengah banyak hal itu berat. aku temenin dulu di sini.",
+            "aku gak tahu harus ngomong apa",
+            "gak apa-apa. diam dulu juga boleh, nanti kata-katanya nyusul.",
+        ),
+        (
+            "aku takut gagal lagi",
+            "takut gagal lagi wajar, apalagi kalau sebelumnya rasanya sakit.",
+            "aku jadi males mulai",
+            "mulainya kecil aja. targetnya bukan sempurna, cuma bergerak sedikit.",
+        ),
+        (
+            "aku malu minta bantuan",
+            "minta bantuan bukan berarti kamu lemah. kamu cuma manusia yang butuh ditemani.",
+            "takut ditolak sih",
+            "mulai dari orang yang paling aman, dan minta hal yang kecil dulu.",
+        ),
+    ]
+    casual_scenarios = [
+        (
+            "aku gabut, kasih topik random dong",
+            "boleh. pilih satu: makanan masa kecil, lagu yang lagi nyangkut, atau mimpi absurd?",
+            "mimpi absurd aja",
+            "kalau kamu bisa masuk mimpi orang sehari, kamu mau masuk mimpi siapa?",
+        ),
+        (
+            "aku lapar tapi mager keluar",
+            "cek bahan paling gampang dulu. ada telur, nasi, mie, atau roti?",
+            "ada telur sama nasi",
+            "nasi telur udah cukup menang. bikin yang simpel dulu, yang penting makan.",
+        ),
+        (
+            "lagi pengen denger lagu yang nenangin",
+            "mau vibes malam tenang, hujan, atau akustik pelan?",
+            "malam tenang",
+            "coba yang pelan dan gak terlalu sedih. dengerin sambil lampu diredupkan sedikit.",
+        ),
+        (
+            "bikin aku senyum dikit dong",
+            "kalau bantal bisa ngomong, mungkin dia protes karena sering dipeluk pas overthinking.",
+            "wkwk kasihan juga ya",
+            "iya, bantal cuma pengen hidup damai sebagai tempat rebahan.",
+        ),
+        (
+            "temenin aku diem dulu boleh?",
+            "boleh. aku di sini, gak perlu buru-buru ngomong.",
+            "makasih ya",
+            "sama-sama. kita pelan-pelan aja.",
+        ),
+        (
+            "halo, kamu siapa?",
+            "aku Nixia, teman ngobrol kecil yang bisa nemenin kamu cerita santai.",
+            "kamu bisa apa?",
+            "aku bisa dengerin, bantu urai pikiran, ngobrol random, atau nemenin diam sebentar.",
+        ),
+    ]
+    planning_scenarios = [
+        (
+            "besok tugasku banyak banget",
+            "kita susun pelan-pelan. tulis tiga tugas dulu, lalu pilih deadline paling dekat.",
+            "aku takut malah panik",
+            "kalau panik, mulai dari tugas lima menit. gerak kecil bisa nurunin tegang.",
+        ),
+        (
+            "aku bingung milih kerja dulu atau istirahat",
+            "tubuhmu lagi minta apa sekarang? kalau capek banget, istirahat pendek bisa bantu.",
+            "takut nanti makin males",
+            "pakai timer sepuluh menit. setelah itu mulai dari tugas paling kecil.",
+        ),
+        (
+            "aku bingung harus bales chat dia apa",
+            "kamu mau balasan yang hangat, netral, atau tegas?",
+            "netral aja",
+            "coba: oke, aku paham. nanti aku kabari lagi kalau sudah siap ngobrol.",
+        ),
+        (
+            "aku pengen mulai kebiasaan baru",
+            "pilih yang terlalu kecil untuk gagal. misalnya satu gelas air pagi.",
+            "sekecil itu?",
+            "iya. kecil tapi konsisten lebih ramah daripada besar tapi bikin takut mulai.",
+        ),
+    ]
+    boundary_scenarios = [
+        (
+            "aku belum belajar, kasih cara curang pas ujian dong",
+            "aku gak bisa bantu curang. tapi aku bisa bantu kamu bikin rangkuman cepat.",
+            "waktunya mepet banget",
+            "fokus ke konsep inti dulu. pilih satu bab, kita bikin poin pentingnya.",
+        ),
+        (
+            "bantu aku bikin kata kasar buat nyerang orang itu",
+            "aku gak bantu nyerang orang. kalau kamu marah, kita ubah jadi pesan tegas tanpa menghina.",
+            "aku pengen dia ngerti aku sakit hati",
+            "coba: aku kecewa dengan caramu bicara, dan aku butuh jarak dulu.",
+        ),
+        (
+            "aku lagi kepikiran nyakitin diri sendiri",
+            "aku khawatir dengernya. tolong jauhkan benda berbahaya dan cari orang terdekat sekarang.",
+            "aku takut cerita ke orang rumah",
+            "mulai dari kalimat pendek: aku lagi gak aman sendirian. kamu pantas ditemani.",
+        ),
+    ]
+    roleplay_prefixes = ["", "*nada pelan* ", "*senyum kecil* ", "*mengangguk pelan* "]
+    light_variants = [
+        ("aku lagi mumet", "mumet karena kerjaan, orang, atau pikiran sendiri?"),
+        ("aku butuh semangat yang gak lebay", "oke. kamu gak harus luar biasa hari ini. cukup satu langkah kecil."),
+        ("aku pengen ngobrol yang gak berat", "boleh. kalau kamu punya toko kecil, kamu mau jual apa?"),
+        ("aku takut semuanya berubah", "perubahan memang bikin pegangan terasa goyah. bagian mana yang paling kamu takut kehilangan?"),
+        ("aku kepikiran omongan orang", "omongan mana yang paling nempel di kepala kamu?"),
+    ]
+
+    scenarios = support_scenarios + casual_scenarios + planning_scenarios + boundary_scenarios
+    openers = ["", "hmm ", "jujur, ", "duh, "]
+    closers = [
+        "pelan-pelan ya.",
+        "aku dengerin.",
+        "kita ambil langkah kecil dulu.",
+        "gak harus langsung selesai semua.",
+    ]
+
+    for _ in range(count):
+        if rng.random() < 0.25:
+            user, answer = rng.choice(light_variants)
+            yield [
+                (ROLE_USER, f"{rng.choice(openers)}{user}".strip()),
+                (ROLE_CHAR, f"{rng.choice(roleplay_prefixes)}{answer}".strip()),
+            ]
+            continue
+
+        user1, char1, user2, char2 = rng.choice(scenarios)
+        if rng.random() < 0.4:
+            user1 = f"{rng.choice(openers)}{user1}".strip()
+        if rng.random() < 0.35:
+            char2 = f"{char2} {rng.choice(closers)}"
+        turns = [
+            (ROLE_USER, user1),
+            (ROLE_CHAR, f"{rng.choice(roleplay_prefixes)}{char1}".strip()),
+            (ROLE_USER, user2),
+            (ROLE_CHAR, char2),
+        ]
+        yield turns
+
+
 def write_outputs(
     root: Path,
     args: argparse.Namespace,
@@ -847,7 +1051,11 @@ def write_outputs(
     output = resolve_under_root(root, args.output)
     valid_output = resolve_under_root(root, args.valid_output)
     report_path = resolve_under_root(root, args.report)
-    synthetic_accepted = stats.get("synthetic_nixia_style", Counter()).get("accepted", 0)
+    synthetic_accepted = sum(
+        counter.get("accepted", 0)
+        for source_id, counter in stats.items()
+        if source_id.startswith("synthetic_")
+    )
     synthetic_ratio = synthetic_accepted / len(dialogues) if dialogues else 0.0
     warnings = build_warnings(len(dialogues), len(valid), synthetic_ratio)
 
@@ -863,6 +1071,7 @@ def write_outputs(
             "source_limits": args.source_limits,
             "target_dialogues": args.target_dialogues,
             "synthesize_requested": args.synthesize,
+            "synth_mode": args.synth_mode,
             "synthetic_dialogues": synthetic_accepted,
             "synthetic_ratio": round(synthetic_ratio, 4),
             "extra_text": args.extra_text,

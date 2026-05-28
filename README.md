@@ -109,6 +109,10 @@ Output default:
 - `data/curated/valid_corpus.txt`
 - `data/curated/build_report.json`
 
+File `.txt` di proyek ini hanya file data/plain-text biasa. Training tidak otomatis membaca semua `.txt`;
+yang dipakai hanya file yang kamu berikan lewat `--corpus`, `--valid`, atau `--extra-text` saat build dataset.
+Overfitting muncul karena data terlalu sedikit, repetitif, atau epoch terlalu panjang, bukan karena jumlah file `.txt` di folder.
+
 Audit kualitas sebelum training panjang:
 
 ```bash
@@ -161,38 +165,39 @@ python tools/audit_dataset.py
 
 Catatan: command ini memasukkan sumber CC-BY-SA, jadi distribusi dataset/model turunan mungkin punya kewajiban atribusi/ShareAlike. Untuk penggunaan privat lokal, tetap simpan report lisensi.
 
-Untuk chat-fix setelah model terlanjur bias ke coding/helpdesk, gunakan mix tanpa sumber teknis dan synthetic lebih rendah:
+Untuk chat-clean/chat-fix, gunakan mix tanpa sumber teknis, synthetic rendah, dan tokenizer baru jika train dari nol:
 
 ```bash
 python tools/build_dataset.py \
   --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,w11wo_twitter_indonesia_sarcastic,seacrowd_seadialogues \
   --allow-sharealike \
   --max-rows-per-source 3000 \
-  --source-limit seacrowd_seadialogues=1200 \
+  --source-limit seacrowd_seadialogues=150 \
   --source-limit w11wo_twitter_indonesia_sarcastic=2000 \
   --synthesize 800 \
+  --synth-mode chat-clean \
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
   --extra-text data/style_packs/chatfix_manual_seed.txt \
-  --output data/curated/chatfix_train.txt \
-  --valid-output data/curated/chatfix_valid.txt \
-  --report data/curated/chatfix_report.json
+  --output data/curated/chatclean_train.txt \
+  --valid-output data/curated/chatclean_valid.txt \
+  --report data/curated/chatclean_report.json
 
 python tools/audit_dataset.py \
-  --train data/curated/chatfix_train.txt \
-  --valid data/curated/chatfix_valid.txt \
-  --build-report data/curated/chatfix_report.json \
-  --json-output data/curated/chatfix_audit.json
+  --train data/curated/chatclean_train.txt \
+  --valid data/curated/chatclean_valid.txt \
+  --build-report data/curated/chatclean_report.json \
+  --json-output data/curated/chatclean_audit.json
 ```
 
-Hasil audit terakhir untuk chat-fix:
+Hasil audit terakhir untuk chat-clean:
 
 ```text
 readiness=small_finetune_candidate
-train=2835
-valid=314
-synthetic_ratio=25.3%
+train=1582
+valid=175
+synthetic_ratio=25.5%
 train_valid_overlap=0
 ```
 
@@ -201,14 +206,33 @@ Fine-tune pendek dari model long:
 ```bash
 cargo run --release -- train \
   --preset nixia-micro \
-  --corpus data/curated/chatfix_train.txt \
-  --valid data/curated/chatfix_valid.txt \
+  --corpus data/curated/chatclean_train.txt \
+  --valid data/curated/chatclean_valid.txt \
   --vocab artifacts/vocab-long.txt \
   --artifacts artifacts/nixia-micro-chatfix \
   --init-from artifacts/nixia-micro-long \
   --epochs 2 \
   --batch-size 16 \
   --lr 0.00001
+```
+
+Untuk model casual/chat dari nol, lebih baik train dari corpus chat-clean dan tokenizer baru:
+
+```bash
+cargo run --release -- tokenizer \
+  --corpus data/curated/chatclean_train.txt \
+  --vocab artifacts/vocab-chatclean.txt \
+  --vocab-size 4000
+
+cargo run --release -- train \
+  --preset nixia-micro \
+  --corpus data/curated/chatclean_train.txt \
+  --valid data/curated/chatclean_valid.txt \
+  --vocab artifacts/vocab-chatclean.txt \
+  --artifacts artifacts/nixia-micro-chatclean \
+  --epochs 15 \
+  --batch-size 16 \
+  --lr 0.00005
 ```
 
 ## Long training end-to-end

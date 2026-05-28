@@ -188,44 +188,66 @@ python tools/build_dataset.py \
 
 `data/style_packs/chatfix_manual_seed.txt` berisi dialog manual original untuk mengoreksi model yang terlalu sering menjawab teknis/coding. Pakai bersama corpus chat-fix, bukan sebagai mayoritas dataset long training.
 
-## Build corpus chat-fix rendah synthetic
+## Build corpus chat-clean rendah synthetic
 
-Gunakan ini setelah model long terlalu bias ke coding/helpdesk. Sumber teknis dikeluarkan, social/SEADialogues dinaikkan, dan synthetic dijaga <30%:
+Gunakan ini untuk model casual/chat dari nol atau setelah model long terlalu bias ke coding/helpdesk. Sumber teknis dikeluarkan, SEADialogues dibatasi ketat, dan synthetic dijaga <30%:
 
 ```bash
 python tools/build_dataset.py \
   --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,w11wo_twitter_indonesia_sarcastic,seacrowd_seadialogues \
   --allow-sharealike \
   --max-rows-per-source 3000 \
-  --source-limit seacrowd_seadialogues=1200 \
+  --source-limit seacrowd_seadialogues=150 \
   --source-limit w11wo_twitter_indonesia_sarcastic=2000 \
   --synthesize 800 \
+  --synth-mode chat-clean \
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
   --extra-text data/style_packs/chatfix_manual_seed.txt \
-  --output data/curated/chatfix_train.txt \
-  --valid-output data/curated/chatfix_valid.txt \
-  --report data/curated/chatfix_report.json
+  --output data/curated/chatclean_train.txt \
+  --valid-output data/curated/chatclean_valid.txt \
+  --report data/curated/chatclean_report.json
 
 python tools/audit_dataset.py \
-  --train data/curated/chatfix_train.txt \
-  --valid data/curated/chatfix_valid.txt \
-  --build-report data/curated/chatfix_report.json \
-  --json-output data/curated/chatfix_audit.json
+  --train data/curated/chatclean_train.txt \
+  --valid data/curated/chatclean_valid.txt \
+  --build-report data/curated/chatclean_report.json \
+  --json-output data/curated/chatclean_audit.json
 ```
 
 Hasil audit terakhir:
 
 ```text
 readiness=small_finetune_candidate
-train=2835
-valid=314
-synthetic_ratio=25.3%
+train=1582
+valid=175
+synthetic_ratio=25.5%
 train_valid_overlap=0
 ```
 
-Warn ukuran train/valid masih wajar untuk fine-tune pendek, bukan long training. Pakai 1-2 epoch dan LR kecil.
+Warn ukuran train/valid masih wajar untuk train awal/fine-tune pendek, bukan long training besar. Tambahkan dialog original/kurasi lagi jika ingin valid 500+.
+
+Untuk model casual/chat dari nol, pakai corpus chat-clean yang sama tetapi buat tokenizer dan artifact baru:
+
+```bash
+cargo run --release -- tokenizer \
+  --corpus data/curated/chatclean_train.txt \
+  --vocab artifacts/vocab-chatclean.txt \
+  --vocab-size 4000
+
+cargo run --release -- train \
+  --preset nixia-micro \
+  --corpus data/curated/chatclean_train.txt \
+  --valid data/curated/chatclean_valid.txt \
+  --vocab artifacts/vocab-chatclean.txt \
+  --artifacts artifacts/nixia-micro-chatclean \
+  --epochs 15 \
+  --batch-size 16 \
+  --lr 0.00005
+```
+
+Catatan file corpus: banyak file `.txt` tidak otomatis memengaruhi training. Trainer hanya membaca file yang diberikan lewat `--corpus`/`--valid`; builder hanya membaca tambahan yang diberikan lewat `--extra-text`. Overfitting disebabkan data kecil/repetitif/source imbalance, bukan jumlah file `.txt`.
 
 Cendol bisa dipanggil eksplisit untuk pretraining/instruction:
 

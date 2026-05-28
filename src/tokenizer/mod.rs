@@ -61,12 +61,20 @@ impl TinyTokenizer {
         }
 
         for word in normalized.split_whitespace() {
-            if let Some(id) = self.vocab.id(word) {
+            if special::is_reserved(word) {
+                if let Some(id) = self.vocab.id(word) {
+                    ids.push(id);
+                    continue;
+                }
+            }
+
+            let remaining = format!("{}{}", special::SPACE_MARKER, word);
+            if let Some(id) = self.vocab.id(&remaining) {
                 ids.push(id);
                 continue;
             }
 
-            let mut remaining = format!("{}{}", special::SPACE_MARKER, word);
+            let mut remaining = remaining;
             while !remaining.is_empty() {
                 let (id, consumed) = self.longest_piece(&remaining);
                 ids.push(id);
@@ -165,5 +173,31 @@ mod tests {
         let ids = tokenizer.encode("Aku makan", true);
 
         assert_eq!(tokenizer.decode(&ids), "aku makan");
+    }
+
+    #[test]
+    fn does_not_encode_normal_words_as_bare_suffixes() {
+        let vocab = Vocabulary::new(vec![
+            special::PAD.into(),
+            special::BOS.into(),
+            special::EOS.into(),
+            special::UNK.into(),
+            special::USER.into(),
+            special::CHARACTER.into(),
+            special::NEWLINE.into(),
+            special::URL.into(),
+            special::NUM.into(),
+            "▁iyaa,".into(),
+            "aku".into(),
+            "▁aku".into(),
+            "di".into(),
+            "▁di".into(),
+            "▁sini".into(),
+        ])
+        .unwrap();
+        let tokenizer = TinyTokenizer::new(vocab).unwrap();
+        let ids = tokenizer.encode("iyaa, aku di sini", true);
+
+        assert_eq!(tokenizer.decode(&ids), "iyaa, aku di sini");
     }
 }
