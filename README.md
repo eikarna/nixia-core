@@ -159,6 +159,119 @@ python tools/audit_dataset.py
 
 Catatan: command ini memasukkan sumber CC-BY-SA, jadi distribusi dataset/model turunan mungkin punya kewajiban atribusi/ShareAlike. Untuk penggunaan privat lokal, tetap simpan report lisensi.
 
+## Long training end-to-end
+
+Command di bawah memakai format Windows `cmd` dengan `^` sebagai line continuation. Jika memakai Git Bash/Linux/macOS, ganti `^` dengan `\`.
+
+1. Build corpus kandidat long training:
+
+```bat
+python tools/build_dataset.py ^
+  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,suryaadhi_ppmb_qa_id,w11wo_twitter_indonesia_sarcastic,gabrielb_python_qa,seacrowd_seadialogues ^
+  --allow-sharealike ^
+  --max-rows-per-source 6000 ^
+  --source-limit seacrowd_seadialogues=1200 ^
+  --synthesize 1500 ^
+  --valid-ratio 0.1 ^
+  --min-score 0.8 ^
+  --offline
+```
+
+2. Audit dataset. Lanjut training hanya jika `status=pass` dan `readiness=longer_training_candidate`:
+
+```bat
+python tools/audit_dataset.py
+```
+
+3. Buat tokenizer baru untuk dataset ini. Pakai file vocab baru agar artifact lama tidak tertukar:
+
+```bat
+cargo run --release -- tokenizer ^
+  --corpus data/curated/train_corpus.txt ^
+  --vocab artifacts/vocab-long.txt ^
+  --vocab-size 6000
+```
+
+4. Train dari nol dengan preset `redmi-nano`:
+
+```bat
+cargo run --release -- train ^
+  --preset redmi-nano ^
+  --corpus data/curated/train_corpus.txt ^
+  --valid data/curated/valid_corpus.txt ^
+  --vocab artifacts/vocab-long.txt ^
+  --artifacts artifacts/redmi-nano-long ^
+  --epochs 15 ^
+  --batch-size 16 ^
+  --lr 0.00005
+```
+
+Jika RAM/waktu tidak cukup, turunkan `--batch-size 8`. Jika training terhenti setelah checkpoint epoch tertentu, lanjutkan seperti ini:
+
+```bat
+cargo run --release -- train ^
+  --preset redmi-nano ^
+  --corpus data/curated/train_corpus.txt ^
+  --valid data/curated/valid_corpus.txt ^
+  --vocab artifacts/vocab-long.txt ^
+  --artifacts artifacts/redmi-nano-long ^
+  --resume-epoch 10 ^
+  --epochs 15 ^
+  --batch-size 16 ^
+  --lr 0.00005
+```
+
+5. Evaluasi validation loss/perplexity:
+
+```bat
+cargo run --release -- eval ^
+  --corpus data/curated/valid_corpus.txt ^
+  --vocab artifacts/vocab-long.txt ^
+  --artifacts artifacts/redmi-nano-long
+```
+
+Opsional, cek train loss untuk melihat jarak train-vs-valid:
+
+```bat
+cargo run --release -- eval ^
+  --corpus data/curated/train_corpus.txt ^
+  --vocab artifacts/vocab-long.txt ^
+  --artifacts artifacts/redmi-nano-long
+```
+
+6. Jalankan prompt regression eval:
+
+```bat
+python tools/eval_prompts.py ^
+  --artifacts artifacts/redmi-nano-long ^
+  --vocab artifacts/vocab-long.txt ^
+  --output data/curated/prompt_eval_long.md
+```
+
+7. Tes generate/chat manual:
+
+```bat
+cargo run --release -- generate ^
+  --chat ^
+  --artifacts artifacts/redmi-nano-long ^
+  --vocab artifacts/vocab-long.txt ^
+  --prompt "aku capek banget hari ini, rasanya pengen tidur tapi pikiran rame" ^
+  --tokens 64 ^
+  --temperature 0.8 ^
+  --top-k 30 ^
+  --top-p 0.92 ^
+  --min-p 0.03
+```
+
+Contoh prompt lain:
+
+```bat
+cargo run --release -- generate --chat --artifacts artifacts/redmi-nano-long --vocab artifacts/vocab-long.txt --prompt "halo, kamu siapa?" --tokens 64
+cargo run --release -- generate --chat --artifacts artifacts/redmi-nano-long --vocab artifacts/vocab-long.txt --prompt "temenin aku diem dulu boleh?" --tokens 64
+```
+
+Tanda training layak diteruskan: valid loss turun/stabil, prompt eval makin natural, dan output tidak makin repetitif. Stop atau turunkan LR kalau train loss turun tetapi valid loss naik.
+
 ## Lanjut training, fine-tune, atau dari nol
 
 - Pakai `--resume-epoch N` untuk melanjutkan run yang sama dari checkpoint `artifacts/run/checkpoint/*-N.mpk`. Ini memuat model, optimizer, dan scheduler state.
