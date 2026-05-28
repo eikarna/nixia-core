@@ -34,6 +34,14 @@ cargo run -- generate --chat --artifacts artifacts/run --vocab artifacts/vocab.t
 
 Sample corpus hanya untuk smoke test, bukan untuk menghasilkan model bagus.
 
+Prompt regression eval untuk membandingkan output antar run:
+
+```bash
+python tools/eval_prompts.py --artifacts artifacts/run --vocab artifacts/vocab.txt
+```
+
+Prompt tetap ada di `data/eval_prompts.txt`; output default ditulis ke `data/curated/prompt_eval.md`.
+
 ## Profil model yang disarankan
 
 Untuk Redmi 4X, mulai dari profil kecil dahulu:
@@ -123,6 +131,15 @@ python tools/build_dataset.py --max-rows-per-source 1000 --synthesize 3000 --ext
 Untuk data buatan/kurasi sendiri, copy `data/templates/manual_batch_template.txt` ke
 `data/private/manual_batch_001.txt`, isi dan anonimisasi, lalu build dengan `--extra-text`.
 Folder `data/private/` dan `data/raw/` sengaja tidak masuk Git.
+
+Untuk gaya sosial media, jangan scrape TikTok/X/Facebook langsung kecuali kamu punya izin/lisensi yang jelas.
+Gunakan sumber publik yang lisensinya kompatibel dan tetap disabled-by-default, misalnya:
+
+```bash
+python tools/build_dataset.py --sources nixia_seed,lorthgyu_indonesian_chat,w11wo_twitter_indonesia_sarcastic --max-rows-per-source 1000 --synthesize 500
+```
+
+Setelah itu wajib jalankan `python tools/audit_dataset.py` dan spot-check manual.
 
 ## Lanjut training, fine-tune, atau dari nol
 

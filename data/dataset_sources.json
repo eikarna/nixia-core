@@ -28,6 +28,31 @@
       "quality": "200 multi-turn Indonesian chats; casual/formal/mixed; direct conversational schema"
     },
     {
+      "id": "w11wo_twitter_indonesia_sarcastic",
+      "enabled": false,
+      "type": "hf_rows",
+      "repo": "w11wo/twitter_indonesia_sarcastic",
+      "config": "default",
+      "split": "train",
+      "adapter": "hf_social_post",
+      "text_fields": ["tweet"],
+      "license": "apache-2.0",
+      "license_class": "permissive",
+      "use": "social_style_seed",
+      "quality": "Apache-2.0 Indonesian tweets with masked usernames/links; disabled by default because social media data needs stricter filtering and assistant replies are templated",
+      "exclude_contains": [
+        "dpr",
+        "dprd",
+        "pilpres",
+        "pemilu",
+        "partai",
+        "jokowi",
+        "prabowo",
+        "anies",
+        "ganjar"
+      ]
+    },
+    {
       "id": "indonlp_cendol_chat_v2",
       "enabled": false,
       "type": "hf_rows",

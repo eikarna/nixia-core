@@ -8,6 +8,7 @@ Tujuan dataset Nixia adalah chat Bahasa Indonesia kasual/roleplay ringan yang te
 |---|---|---:|---:|---|
 | `nixia_seed` | `data/sample_corpus.txt` | project-local | ya | Seed manual gaya Nixia |
 | `lorthgyu_indonesian_chat` | HF `LorthGyu/indonesian-chat` | MIT | ya | 200 multi-turn chat Indo |
+| `w11wo_twitter_indonesia_sarcastic` | HF `w11wo/twitter_indonesia_sarcastic` | Apache-2.0 | tidak | Social-style seed dari tweet termask; wajib filter/spot-check karena raw social media noisy/politis |
 | `indonlp_cendol_chat_v2` | HF `indonlp/cendol_collection_v2` | Apache-2.0 | tidak | Besar; cocok untuk pretraining/instruction, bukan default chat kasual |
 | `seacrowd_seadialogues` | HF `SEACrowd/SEADialogues` | CC-BY-SA-4.0 | perlu `--allow-sharealike` | Multi-turn cultural dialogue; bagus untuk lokal/kultural |
 | `indonlp_nusax_mt` | HF `indonlp/NusaX-MT` | CC-BY-SA-4.0 | tidak | Bagus untuk tokenizer/dialek, bukan chat utama |
@@ -97,6 +98,31 @@ Output penting:
 - `synthetic_ratio` idealnya <= 30%,
 - `response_template_repetition` jangan tinggi; kalau tinggi, model cenderung menjawab dengan frasa yang sama.
 
+## Catatan sosial media
+
+Jangan langsung scrape/copy TikTok, X/Twitter, Facebook, Instagram, atau forum tertutup untuk training kecuali kamu punya izin/lisensi yang jelas. Postingan publik tetap bisa punya hak cipta, data pribadi, dan batasan Terms of Service.
+
+Jalur aman yang dipakai proyek ini:
+
+1. gunakan dataset publik dengan lisensi jelas,
+2. simpan raw sosial media di `data/raw/` jika perlu inspeksi lokal,
+3. filter URL, handle, nama orang, politik, hinaan, PII, dan spam,
+4. ubah hanya menjadi seed gaya/intent kecil, bukan mayoritas corpus,
+5. audit + spot-check manual sebelum training.
+
+Contoh memakai sumber social-style Apache-2.0 yang sudah ada di manifest tetapi disabled-by-default:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed,lorthgyu_indonesian_chat,w11wo_twitter_indonesia_sarcastic \
+  --max-rows-per-source 1000 \
+  --synthesize 500
+
+python tools/audit_dataset.py
+```
+
+Kalau hasil audit menunjukkan template repetition tinggi atau banyak contoh politis/toxic, jangan fine-tune dulu; tambah curated manual yang lebih natural.
+
 Jika butuh variasi lokal, gunakan style pack terpisah seperti `data/style_packs/local_flavor_sample.txt`, atau aktifkan generator lokal secara eksplisit:
 
 ```bash
@@ -178,6 +204,19 @@ cargo run --release -- train \
 
 Training saat ini memakai Burn Flex CPU untuk checkpoint stabil. Jangan mengandalkan
 `--features wgpu-backend` untuk training utama sampai jalur WGPU diverifikasi lagi.
+
+## Prompt regression eval
+
+Gunakan prompt tetap untuk membandingkan output sebelum/sesudah fine-tune:
+
+```bash
+python tools/eval_prompts.py \
+  --artifacts artifacts/redmi-nano \
+  --vocab artifacts/vocab.txt \
+  --output data/curated/prompt_eval.md
+```
+
+Prompt ada di `data/eval_prompts.txt`. Tool ini bukan penilai otomatis; ia hanya menyimpan output dan flag kasar seperti prompt echo, repetisi, atau respons safety yang perlu review.
 
 ## Lanjut training
 

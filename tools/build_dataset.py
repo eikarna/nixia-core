@@ -59,6 +59,22 @@ REJECT_SUBSTRINGS = {
     "```", "<script", "http://", "https://", "www.",
 }
 
+SOCIAL_REJECT_TERMS = {
+    "anjing", "bangsat", "bajingan", "goblok", "tolol", "maling", "koruptor",
+    "dpr", "dprd", "pilpres", "pemilu", "partai", "cebong", "kampret",
+    "pemerintah", "polri", "kapolri", "presiden", "menteri", "radikalisme",
+    "jokowi", "prabowo", "anies", "ganjar", "fadli", "zonk", "licik",
+    "pembenci", "pengkhianatan", "antipati", "aspirasi",
+}
+
+SOCIAL_RESPONSE_TEMPLATES = [
+    "aku nangkep vibes-nya. kamu mau cerita konteksnya pelan-pelan?",
+    "hmm iya, kedengarannya lagi rame di kepala ya. bagian mana yang paling kepikiran?",
+    "boleh, kita obrolin santai aja. menurut kamu yang paling bikin ganjel apa?",
+    "aku dengerin. coba ceritain sedikit dulu, gak harus langsung semuanya.",
+    "wkwk aku paham maksudmu. mau dibahas serius atau santai aja?",
+]
+
 REJECT_TERMS = {
     # Keep the list conservative: reject explicit/pornographic or dangerous rows,
     # while still allowing normal emotional-support conversations.
@@ -105,7 +121,7 @@ def main() -> int:
 
         for raw in iter_source_rows(root, source, args):
             stats[source_id]["raw"] += 1
-            for candidate in adapt_row(source, raw):
+            for candidate in adapt_row(source, raw, stats[source_id]):
                 accepted = accept_candidate(
                     dialogues,
                     seen,
@@ -317,7 +333,11 @@ def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespac
             time.sleep(0.05)
 
 
-def adapt_row(source: dict[str, Any], row: dict[str, Any]) -> Iterable[list[tuple[str, str]]]:
+def adapt_row(
+    source: dict[str, Any],
+    row: dict[str, Any],
+    stats: Counter[str] | None = None,
+) -> Iterable[list[tuple[str, str]]]:
     adapter = source["adapter"]
     if adapter == "nixia_text":
         yield from parse_nixia_text(row.get("text", ""))
@@ -345,6 +365,19 @@ def adapt_row(source: dict[str, Any], row: dict[str, Any]) -> Iterable[list[tupl
             if parsed:
                 yield parsed
                 return
+    elif adapter == "hf_social_post":
+        text = first_text_field(row, source.get("text_fields") or ["text", "tweet", "content"])
+        if not text:
+            if stats is not None:
+                stats["reject_social_missing_text"] += 1
+            return
+        text = clean_social_post(text)
+        reason = social_post_reject_reason(source, text)
+        if reason:
+            if stats is not None:
+                stats[f"reject_social_{reason}"] += 1
+            return
+        yield [(ROLE_USER, text), (ROLE_CHAR, social_response_for(text))]
 
 
 def subset_rejected(source: dict[str, Any], row: dict[str, Any]) -> bool:
@@ -365,6 +398,53 @@ def parse_nixia_text(text: str) -> Iterable[list[tuple[str, str]]]:
                 turns.append((ROLE_CHAR, line[len(ROLE_CHAR):].strip()))
         if turns:
             yield turns
+
+
+def first_text_field(row: dict[str, Any], field_names: Iterable[str]) -> str:
+    for name in field_names:
+        value = row.get(name)
+        if isinstance(value, str) and value.strip():
+            return value
+    return ""
+
+
+def clean_social_post(text: str) -> str:
+    text = re.sub(r"<\s*(username|user|link|url|hashtag)\s*>", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\brt\s+@\w+:?", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"pic\s*\.\s*twitter\s*\.\s*com\s*/?\S*", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"#([\w_]+)", r"\1", text)
+    text = re.sub(r"\s+", " ", text).strip(" .,-")
+    return text
+
+
+def social_post_reject_reason(source: dict[str, Any], text: str) -> str | None:
+    lower = text.lower()
+    if len(text) < 12 or len(text) > 220:
+        return "length"
+    if any(marker in lower for marker in ("twitter", "pic .", "\\u", "ð", "�")):
+        return "artifact"
+    if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", text):
+        return "possible_name"
+    blocked_terms = SOCIAL_REJECT_TERMS | set(source.get("exclude_contains") or [])
+    if any(term in lower for term in blocked_terms):
+        return "blocked_term"
+    if text.count("?") + text.count("!") > 4:
+        return "punctuation"
+    uppercase = sum(ch.isupper() for ch in text)
+    letters = sum(ch.isalpha() for ch in text)
+    if letters and uppercase / letters > 0.45:
+        return "uppercase"
+    return None
+
+
+def social_response_for(text: str) -> str:
+    lower = text.lower()
+    if any(term in lower for term in ("capek", "sedih", "takut", "kecewa", "bingung", "pusing")):
+        return "kedengarannya berat ya. kamu mau cerita bagian yang paling kerasa dulu?"
+    if any(term in lower for term in ("pengen tau", "penasaran", "gimana", "kenapa")):
+        return "aku juga penasaran jadinya. menurut kamu bagian paling anehnya yang mana?"
+    index = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % len(SOCIAL_RESPONSE_TEMPLATES)
+    return SOCIAL_RESPONSE_TEMPLATES[index]
 
 
 def parse_named_dialogue(text: str) -> list[tuple[str, str]] | None:
