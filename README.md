@@ -101,6 +101,15 @@ Output default:
 - `data/curated/valid_corpus.txt`
 - `data/curated/build_report.json`
 
+Audit kualitas sebelum training panjang:
+
+```bash
+python tools/audit_dataset.py
+```
+
+Audit mengecek format `<user>/<char>`, duplikat, train/valid overlap, ukuran valid set,
+rasio synthetic, dan repetisi template respons.
+
 Sumber dataset dan catatan lisensi ada di `data/DATASET_GUIDE.md` dan `data/dataset_sources.json`.
 Gunakan `--allow-sharealike` hanya jika kamu siap mengikuti kewajiban atribusi/ShareAlike.
 Base corpus sengaja netral-kasual; slang/dialek berat sebaiknya masuk style pack atau fine-tuning persona terpisah supaya persona tidak bocor dan tidak context rot.

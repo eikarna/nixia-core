@@ -34,6 +34,49 @@ Prinsip base corpus:
 - gaya Jawa/Sunda/slang spesifik masuk style pack atau fine-tuning terpisah,
 - tujuan: mengurangi persona leakage dan context rot.
 
+## Target kualitas praktis
+
+Anggap dataset punya tiga level:
+
+1. **Smoke/dev**: cukup untuk cek pipeline jalan. Boleh kecil, tapi hasil model tidak dinilai serius.
+2. **Fine-tune kecil**: minimal sekitar 1k+ dialog train dan 100+ dialog valid, format bersih, tanpa overlap train/valid.
+3. **Training lebih serius**: target awal 5k-20k dialog real/curated, valid 500-2k dialog, synthetic maksimal 30%.
+
+Untuk Nixia, contoh dialog bagus adalah multi-turn pendek yang natural:
+
+```text
+<user> aku pengen cerita tapi takut ganggu
+<char> kamu gak ganggu kok. cerita pelan-pelan aja, aku dengerin.
+<user> temenku tiba-tiba cuek, aku jadi kepikiran
+<char> wajar kalau kepikiran. terakhir kalian ngobrol soal apa?
+```
+
+Checklist dialog yang layak masuk train/valid:
+
+- role jelas dan konsisten: `<user>` lalu `<char>`, boleh 2-10 turn,
+- respons nyambung dengan konteks sebelumnya,
+- gaya kasual Indonesia sesuai target, tidak terlalu formal/ensiklopedis,
+- bukan template yang sama berulang-ulang,
+- tidak ada URL, nomor telepon, email, handle, secret, atau data pribadi,
+- tidak ada prompt/model artifact seperti "sebagai AI/model bahasa",
+- aman secara lisensi: buatan sendiri, public-domain/permissive, atau sumber yang memang diizinkan.
+
+Untuk validation set, pilih contoh yang mirip kasus nyata tetapi **jangan** duplikat dari train. Valid set adalah ujian, bukan bahan belajar.
+
+Audit corpus setiap selesai build:
+
+```bash
+python tools/audit_dataset.py
+```
+
+Output penting:
+
+- `train_valid_overlap` harus 0,
+- fail-level issue harus 0,
+- valid idealnya 5-10% dari total dan minimal 500 dialog untuk training lebih serius,
+- `synthetic_ratio` idealnya <= 30%,
+- `response_template_repetition` jangan tinggi; kalau tinggi, model cenderung menjawab dengan frasa yang sama.
+
 Jika butuh variasi lokal, gunakan style pack terpisah seperti `data/style_packs/local_flavor_sample.txt`, atau aktifkan generator lokal secara eksplisit:
 
 ```bash
