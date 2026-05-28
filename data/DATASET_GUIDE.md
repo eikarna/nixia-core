@@ -61,6 +61,26 @@ Checklist dialog yang layak masuk train/valid:
 - tidak ada prompt/model artifact seperti "sebagai AI/model bahasa",
 - aman secara lisensi: buatan sendiri, public-domain/permissive, atau sumber yang memang diizinkan.
 
+Jika memakai chat pribadi, simpan mentahnya di `data/private/` atau `data/raw/` karena folder itu di-ignore Git.
+Sebelum masuk corpus, anonimisasi nama, nomor, lokasi spesifik, username, dan detail pribadi lain.
+Template batch manual tersedia di `data/templates/manual_batch_template.txt`. Copy ke `data/private/manual_batch_001.txt`, isi dengan dialog buatan/kurasi sendiri, lalu masukkan saat build:
+
+```bash
+python tools/build_dataset.py \
+  --max-rows-per-source 1000 \
+  --synthesize 500 \
+  --extra-text data/private/manual_batch_001.txt
+```
+
+Target batch manual yang disarankan:
+
+- 40% curhat/emotional support,
+- 20% obrolan santai/gabut,
+- 15% tanya balik dan follow-up konteks,
+- 10% roleplay ringan,
+- 10% batas aman/menolak hal berbahaya secara halus,
+- 5% dialek/slang lokal jika memang ingin style pack.
+
 Untuk validation set, pilih contoh yang mirip kasus nyata tetapi **jangan** duplikat dari train. Valid set adalah ujian, bukan bahan belajar.
 
 Audit corpus setiap selesai build:

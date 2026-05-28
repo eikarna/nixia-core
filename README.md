@@ -120,6 +120,10 @@ Tambahkan corpus/style pack lokal tanpa mengubah manifest dengan `--extra-text`:
 python tools/build_dataset.py --max-rows-per-source 1000 --synthesize 3000 --extra-text data/style_packs/local_flavor_sample.txt
 ```
 
+Untuk data buatan/kurasi sendiri, copy `data/templates/manual_batch_template.txt` ke
+`data/private/manual_batch_001.txt`, isi dan anonimisasi, lalu build dengan `--extra-text`.
+Folder `data/private/` dan `data/raw/` sengaja tidak masuk Git.
+
 ## Lanjut training, fine-tune, atau dari nol
 
 - Pakai `--resume-epoch N` untuk melanjutkan run yang sama dari checkpoint `artifacts/run/checkpoint/*-N.mpk`. Ini memuat model, optimizer, dan scheduler state.
