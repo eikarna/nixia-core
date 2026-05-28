@@ -1,0 +1,16 @@
+/target/
+/artifacts/
+/data/curated/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# Local logs
+*.log

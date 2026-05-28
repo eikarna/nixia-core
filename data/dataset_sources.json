@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "verified_at": "2026-05-28",
+  "notes": "Manifest sumber data yang sudah dicek dari Hugging Face/API publik. Builder tetap memvalidasi license tag sebelum mengambil data.",
+  "sources": [
+    {
+      "id": "nixia_seed",
+      "enabled": true,
+      "type": "local_text",
+      "path": "data/sample_corpus.txt",
+      "adapter": "nixia_text",
+      "license": "project-local",
+      "license_class": "permissive",
+      "use": "chat",
+      "quality": "manual seed: casual Indonesian + Jawa/Sunda + roleplay ringan"
+    },
+    {
+      "id": "lorthgyu_indonesian_chat",
+      "enabled": true,
+      "type": "hf_rows",
+      "repo": "LorthGyu/indonesian-chat",
+      "config": "default",
+      "split": "train",
+      "adapter": "hf_conversations",
+      "license": "mit",
+      "license_class": "permissive",
+      "use": "chat",
+      "quality": "200 multi-turn Indonesian chats; casual/formal/mixed; direct conversational schema"
+    },
+    {
+      "id": "indonlp_cendol_chat_v2",
+      "enabled": false,
+      "type": "hf_rows",
+      "repo": "indonlp/cendol_collection_v2",
+      "config": "default",
+      "split": "train",
+      "adapter": "hf_input_output",
+      "license": "apache-2.0",
+      "license_class": "permissive",
+      "use": "instruction_chat",
+      "quality": "12.8M Indonesian instruction/chat rows; bagus untuk pretraining/instruction, tetapi tidak default untuk corpus chat kasual karena banyak row ensiklopedis/task non-chat",
+      "start_offsets": [0, 6000000, 9000000, 12000000],
+      "exclude_subset_contains": [
+        "puisi",
+        "topic",
+        "rhetoric",
+        "translation",
+        "mt",
+        "ner",
+        "pos",
+        "summarization"
+      ]
+    },
+    {
+      "id": "seacrowd_seadialogues",
+      "enabled": true,
+      "type": "hf_rows",
+      "repo": "SEACrowd/SEADialogues",
+      "config": "default",
+      "split": "train",
+      "adapter": "sea_dialogues",
+      "license": "cc-by-sa-4.0",
+      "license_class": "sharealike",
+      "use": "chat_cultural",
+      "quality": "8K culturally grounded multi-turn SEA conversations; include with --allow-sharealike",
+      "lang_allow": ["ind", "jav", "sun", "min"],
+      "dialogue_fields": [
+        "generated_convo_gemini15flash",
+        "generated_convo_gpt4omini"
+      ]
+    },
+    {
+      "id": "indonlp_nusax_mt",
+      "enabled": false,
+      "type": "hf_rows",
+      "repo": "indonlp/NusaX-MT",
+      "config": "default",
+      "split": "train",
+      "adapter": "nusa_phrase_pair",
+      "license": "cc-by-sa-4.0",
+      "license_class": "sharealike",
+      "use": "dialect_lexical_pretrain",
+      "quality": "expert translated Indonesian + local language parallel corpus; useful for tokenizer/pretraining, not primary chat"
+    },
+    {
+      "id": "noura_roleplay_chat",
+      "enabled": false,
+      "type": "hf_rows",
+      "repo": "Nourivex/Noura-Roleplay-Chat",
+      "config": "default",
+      "split": "train",
+      "adapter": "unknown_json",
+      "license": "cc-by-nc-sa-4.0",
+      "license_class": "noncommercial",
+      "use": "roleplay",
+      "quality": "roleplay Indonesian dataset; skip by default because non-commercial/share-alike"
+    }
+  ]
+}

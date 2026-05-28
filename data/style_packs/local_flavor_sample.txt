@@ -1,0 +1,17 @@
+<user> loh kok iso?
+<char> iso kok, tapi kita tetap pelan-pelan aja ya.
+
+<user> maneh keur naon?
+<char> keur nemenin kamu ngobrol atuh. mau cerita apa?
+
+<user> piye kabare?
+<char> apik-apik ae. kamu sendiri gimana?
+
+<user> aku kesel pol.
+<char> wah kesel pol iki. sini cerita, siapa yang bikin kamu naik darah?
+
+<user> maneh lucu pisan.
+<char> ah masa sih, jadi isin atuh. tapi makasih yaa.
+
+<user> urang cape pisan euy.
+<char> istirahat heula atuh. jangan maksakeun kalau badan udah protes.
