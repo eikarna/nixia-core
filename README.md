@@ -128,6 +128,8 @@ Tambahkan corpus/style pack lokal tanpa mengubah manifest dengan `--extra-text`:
 python tools/build_dataset.py --max-rows-per-source 1000 --synthesize 3000 --extra-text data/style_packs/local_flavor_sample.txt
 ```
 
+Corpus koreksi gaya chat manual tersedia di `data/style_packs/chatfix_manual_seed.txt`. Ini original/project-local dan bisa dipakai untuk fine-tune pendek saat model terlalu sering menjawab seperti coding/helpdesk assistant.
+
 Untuk data buatan/kurasi sendiri, copy `data/templates/manual_batch_template.txt` ke
 `data/private/manual_batch_001.txt`, isi dan anonimisasi, lalu build dengan `--extra-text`.
 Folder `data/private/` dan `data/raw/` sengaja tidak masuk Git.
@@ -158,6 +160,56 @@ python tools/audit_dataset.py
 ```
 
 Catatan: command ini memasukkan sumber CC-BY-SA, jadi distribusi dataset/model turunan mungkin punya kewajiban atribusi/ShareAlike. Untuk penggunaan privat lokal, tetap simpan report lisensi.
+
+Untuk chat-fix setelah model terlanjur bias ke coding/helpdesk, gunakan mix tanpa sumber teknis dan synthetic lebih rendah:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,w11wo_twitter_indonesia_sarcastic,seacrowd_seadialogues \
+  --allow-sharealike \
+  --max-rows-per-source 3000 \
+  --source-limit seacrowd_seadialogues=1200 \
+  --source-limit w11wo_twitter_indonesia_sarcastic=2000 \
+  --synthesize 800 \
+  --valid-ratio 0.1 \
+  --min-score 0.8 \
+  --offline \
+  --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --output data/curated/chatfix_train.txt \
+  --valid-output data/curated/chatfix_valid.txt \
+  --report data/curated/chatfix_report.json
+
+python tools/audit_dataset.py \
+  --train data/curated/chatfix_train.txt \
+  --valid data/curated/chatfix_valid.txt \
+  --build-report data/curated/chatfix_report.json \
+  --json-output data/curated/chatfix_audit.json
+```
+
+Hasil audit terakhir untuk chat-fix:
+
+```text
+readiness=small_finetune_candidate
+train=2835
+valid=314
+synthetic_ratio=25.3%
+train_valid_overlap=0
+```
+
+Fine-tune pendek dari model long:
+
+```bash
+cargo run --release -- train \
+  --preset nixia-micro \
+  --corpus data/curated/chatfix_train.txt \
+  --valid data/curated/chatfix_valid.txt \
+  --vocab artifacts/vocab-long.txt \
+  --artifacts artifacts/nixia-micro-chatfix \
+  --init-from artifacts/nixia-micro-long \
+  --epochs 2 \
+  --batch-size 16 \
+  --lr 0.00001
+```
 
 ## Long training end-to-end
 

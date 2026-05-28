@@ -186,6 +186,47 @@ python tools/build_dataset.py \
 <char> aku lagi santai nih hehe. kamu sendiri gimana?
 ```
 
+`data/style_packs/chatfix_manual_seed.txt` berisi dialog manual original untuk mengoreksi model yang terlalu sering menjawab teknis/coding. Pakai bersama corpus chat-fix, bukan sebagai mayoritas dataset long training.
+
+## Build corpus chat-fix rendah synthetic
+
+Gunakan ini setelah model long terlalu bias ke coding/helpdesk. Sumber teknis dikeluarkan, social/SEADialogues dinaikkan, dan synthetic dijaga <30%:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,w11wo_twitter_indonesia_sarcastic,seacrowd_seadialogues \
+  --allow-sharealike \
+  --max-rows-per-source 3000 \
+  --source-limit seacrowd_seadialogues=1200 \
+  --source-limit w11wo_twitter_indonesia_sarcastic=2000 \
+  --synthesize 800 \
+  --valid-ratio 0.1 \
+  --min-score 0.8 \
+  --offline \
+  --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --output data/curated/chatfix_train.txt \
+  --valid-output data/curated/chatfix_valid.txt \
+  --report data/curated/chatfix_report.json
+
+python tools/audit_dataset.py \
+  --train data/curated/chatfix_train.txt \
+  --valid data/curated/chatfix_valid.txt \
+  --build-report data/curated/chatfix_report.json \
+  --json-output data/curated/chatfix_audit.json
+```
+
+Hasil audit terakhir:
+
+```text
+readiness=small_finetune_candidate
+train=2835
+valid=314
+synthetic_ratio=25.3%
+train_valid_overlap=0
+```
+
+Warn ukuran train/valid masih wajar untuk fine-tune pendek, bukan long training. Pakai 1-2 epoch dan LR kecil.
+
 Cendol bisa dipanggil eksplisit untuk pretraining/instruction:
 
 ```bash
