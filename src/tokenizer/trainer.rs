@@ -89,32 +89,34 @@ fn add_current_pieces(
     known: &mut HashSet<String>,
     vocab_size: usize,
 ) {
-    let mut piece_frequency = HashMap::<String, usize>::new();
+    let mut piece_frequency = HashMap::<&str, usize>::new();
     for word in words {
         for piece in &word.pieces {
-            *piece_frequency.entry(piece.clone()).or_default() += word.count;
+            *piece_frequency.entry(piece.as_str()).or_default() += word.count;
         }
     }
 
     let mut pieces = piece_frequency.into_iter().collect::<Vec<_>>();
-    pieces.sort_by(|left, right| right.1.cmp(&left.1).then_with(|| left.0.cmp(&right.0)));
+    pieces.sort_by(|left, right| right.1.cmp(&left.1).then_with(|| left.0.cmp(right.0)));
 
     for (piece, _) in pieces {
         if vocab.len() >= vocab_size {
             break;
         }
-        if known.insert(piece.clone()) {
-            vocab.push(piece);
+        if !known.contains(piece) {
+            let s = piece.to_string();
+            known.insert(s.clone());
+            vocab.push(s);
         }
     }
 }
 
 fn most_frequent_pair(words: &[WordEntry]) -> Option<(String, String, usize)> {
-    let mut pair_counts = HashMap::<(String, String), usize>::new();
+    let mut pair_counts = HashMap::<(&str, &str), usize>::new();
 
     for word in words {
         for pair in word.pieces.windows(2) {
-            let key = (pair[0].clone(), pair[1].clone());
+            let key = (pair[0].as_str(), pair[1].as_str());
             *pair_counts.entry(key).or_default() += word.count;
         }
     }
@@ -124,10 +126,10 @@ fn most_frequent_pair(words: &[WordEntry]) -> Option<(String, String, usize)> {
         .max_by(|left, right| {
             left.1
                 .cmp(&right.1)
-                .then_with(|| right.0.0.cmp(&left.0.0))
-                .then_with(|| right.0.1.cmp(&left.0.1))
+                .then_with(|| right.0.0.cmp(left.0.0))
+                .then_with(|| right.0.1.cmp(left.0.1))
         })
-        .map(|((left, right), count)| (left, right, count))
+        .map(|((left, right), count)| (left.to_string(), right.to_string(), count))
 }
 
 fn merge_pair_in_words(words: &mut [WordEntry], left: &str, right: &str, merged: &str) {
@@ -158,19 +160,19 @@ fn sort_tail_by_frequency(vocab: &mut [String], words: &[WordEntry]) {
         return;
     }
 
-    let mut frequency = HashMap::<String, usize>::new();
+    let mut frequency = HashMap::<&str, usize>::new();
     for word in words {
         for piece in &word.pieces {
-            *frequency.entry(piece.clone()).or_default() += word.count;
+            *frequency.entry(piece.as_str()).or_default() += word.count;
         }
     }
 
     vocab[special_len..].sort_by(|left, right| {
         frequency
-            .get(right)
+            .get(right.as_str())
             .copied()
             .unwrap_or_default()
-            .cmp(&frequency.get(left).copied().unwrap_or_default())
+            .cmp(&frequency.get(left.as_str()).copied().unwrap_or_default())
             .then_with(|| left.cmp(right))
     });
 }
