@@ -1,6 +1,6 @@
 mod normalizer;
 pub mod special;
-mod trainer;
+pub mod trainer;
 mod vocab;
 
 use std::path::Path;
@@ -165,8 +165,8 @@ mod tests {
             special::NEWLINE.into(),
             special::URL.into(),
             special::NUM.into(),
-            "▁aku".into(),
-            "▁makan".into(),
+            format!("{}aku", special::SPACE_MARKER).into(),
+            format!("{}makan", special::SPACE_MARKER).into(),
         ])
         .unwrap();
         let tokenizer = TinyTokenizer::new(vocab).unwrap();
@@ -187,12 +187,12 @@ mod tests {
             special::NEWLINE.into(),
             special::URL.into(),
             special::NUM.into(),
-            "▁iyaa,".into(),
+            format!("{}iyaa,", special::SPACE_MARKER).into(),
             "aku".into(),
-            "▁aku".into(),
+            format!("{}aku", special::SPACE_MARKER).into(),
             "di".into(),
-            "▁di".into(),
-            "▁sini".into(),
+            format!("{}di", special::SPACE_MARKER).into(),
+            format!("{}sini", special::SPACE_MARKER).into(),
         ])
         .unwrap();
         let tokenizer = TinyTokenizer::new(vocab).unwrap();
