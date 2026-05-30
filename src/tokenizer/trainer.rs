@@ -89,10 +89,10 @@ fn add_current_pieces(
     known: &mut HashSet<String>,
     vocab_size: usize,
 ) {
-    let mut piece_frequency = HashMap::<String, usize>::new();
+    let mut piece_frequency = HashMap::<&str, usize>::new();
     for word in words {
         for piece in &word.pieces {
-            *piece_frequency.entry(piece.clone()).or_default() += word.count;
+            *piece_frequency.entry(piece.as_str()).or_default() += word.count;
         }
     }
 
@@ -103,8 +103,8 @@ fn add_current_pieces(
         if vocab.len() >= vocab_size {
             break;
         }
-        if known.insert(piece.clone()) {
-            vocab.push(piece);
+        if known.insert(piece.to_string()) {
+            vocab.push(piece.to_string());
         }
     }
 }
