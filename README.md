@@ -11,17 +11,36 @@ Target desainnya adalah model kecil untuk eksperimen on-device, terutama perangk
 - `src/training`: konfigurasi, loop training Burn, dan evaluasi loss/perplexity.
 - `src/inference`: loading model, chat template, sampling, dan weight-only int8 quantization helper.
 
-## Backend
+## Backend dan resource training
 
-Training sengaja memakai Burn Flex CPU untuk checkpoint yang stabil dan portabel. Feature
-`wgpu-backend` tetap bisa dikompilasi untuk eksperimen backend, tetapi command `train`
-tidak memakai WGPU karena sebelumnya checkpoint hasil WGPU mudah menjadi NaN di proyek ini.
+Training default memakai Burn Flex CPU untuk checkpoint yang stabil dan portabel. Untuk
+eksperimen GPU, command `train` mendukung pilihan backend:
 
-Gunakan command training tanpa feature WGPU:
+- `--backend flex` default CPU/Flex.
+- `--backend wgpu` untuk AMD Radeon, Intel GPU, dan GPU lain yang didukung WGPU.
+- `--backend cuda` untuk NVIDIA/CUDA.
+- `--backend rocm` untuk AMD ROCm di Linux yang kompatibel.
+
+Backend GPU harus dikompilasi dengan feature Cargo yang sesuai:
+
+```bash
+cargo run --release --features wgpu-backend -- train --backend wgpu --gpu-kind discrete --device-index 0 ...
+cargo run --release --features cuda-backend -- train --backend cuda --device-index 0 ...
+cargo run --release --features rocm-backend -- train --backend rocm --device-index 0 ...
+```
+
+Resource training dikontrol lewat `--batch-size`, `--seq-len`, ukuran model, backend,
+`--device-index`, `--gpu-kind`, dan `--num-workers`. Untuk memaksimalkan pemakaian GPU,
+naikkan `--batch-size` bertahap sampai VRAM hampir penuh tetapi training masih stabil.
+Tidak ada jaminan utilisasi 99.9% karena scheduler GPU/driver dan ukuran model ikut menentukan.
+
+Gunakan command training CPU tanpa feature GPU:
 
 ```bash
 cargo run --release -- train --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run
 ```
+
+Notebook Kaggle/Colab tersedia di `notebooks/nixia_train_gpu.ipynb`.
 
 ## Quick start
 
@@ -110,8 +129,76 @@ Output default:
 - `data/curated/build_report.json`
 
 File `.txt` di proyek ini hanya file data/plain-text biasa. Training tidak otomatis membaca semua `.txt`;
-yang dipakai hanya file yang kamu berikan lewat `--corpus`, `--valid`, atau `--extra-text` saat build dataset.
+yang dipakai hanya file yang kamu berikan lewat `--corpus`, `--valid`, `--extra-text`, atau `--extra-glob` saat build dataset.
 Overfitting muncul karena data terlalu sedikit, repetitif, atau epoch terlalu panjang, bukan karena jumlah file `.txt` di folder.
+
+## Mengelola dataset sendiri
+
+Dataset manual/project-local bisa disimpan di `data/templates/nixia_dataset_*.txt`. Saat ini ada 10 batch (`001`-`010`), masing-masing sekitar 100 dialog. File ini aman untuk version control jika isinya original dan bukan chat pribadi. Untuk chat pribadi/raw, simpan di `data/private/` karena folder itu di-ignore Git.
+
+Format wajib tiap dialog:
+
+```text
+<user> pesan user
+<char> balasan nixia
+
+<user> dialog berikutnya
+<char> balasan berikutnya
+```
+
+Melihat ringkasan/filter dataset manual tanpa menulis file:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed \
+  --max-rows-per-source 0 \
+  --synthesize 0 \
+  --min-score 0.8 \
+  --offline \
+  --extra-glob "data/templates/nixia_dataset_*.txt" \
+  --dry-run
+```
+
+Menambahkan batch baru:
+
+1. Copy `data/templates/manual_batch_template.txt` menjadi `data/templates/nixia_dataset_011.txt`.
+2. Isi 50-100 dialog original.
+3. Jalankan dry-run di atas dan cek `accepted`/`reject_*`.
+
+Mengurangi dataset:
+
+- Hapus atau pindahkan file batch dari pola `data/templates/nixia_dataset_*.txt`.
+- Atau rename sementara, misalnya `nixia_dataset_011.disabled.txt`, supaya tidak ikut `--extra-glob`.
+
+Merevisi dataset:
+
+- Edit file batch langsung.
+- Jaga role `<user>`/`<char>`, pisahkan dialog dengan baris kosong, dan hindari PII/link/konten berbahaya.
+- Jalankan build + audit ulang sebelum training.
+
+Build corpus bersih dari semua dataset manual. Command ini sengaja tidak mengambil sumber publik/social supaya vocab tidak ikut menyerap nama orang, simbol mojibake, atau gaya forum yang noisy:
+
+```bash
+python tools/build_dataset.py \
+  --sources nixia_seed \
+  --max-rows-per-source 0 \
+  --synthesize 800 \
+  --synth-mode chat-clean \
+  --valid-ratio 0.1 \
+  --min-score 0.8 \
+  --offline \
+  --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --extra-glob "data/templates/nixia_dataset_*.txt" \
+  --output data/curated/chatclean_train.txt \
+  --valid-output data/curated/chatclean_valid.txt \
+  --report data/curated/chatclean_report.json
+
+python tools/audit_dataset.py \
+  --train data/curated/chatclean_train.txt \
+  --valid data/curated/chatclean_valid.txt \
+  --build-report data/curated/chatclean_report.json \
+  --json-output data/curated/chatclean_audit.json
+```
 
 Audit kualitas sebelum training panjang:
 
@@ -165,21 +252,19 @@ python tools/audit_dataset.py
 
 Catatan: command ini memasukkan sumber CC-BY-SA, jadi distribusi dataset/model turunan mungkin punya kewajiban atribusi/ShareAlike. Untuk penggunaan privat lokal, tetap simpan report lisensi.
 
-Untuk chat-clean/chat-fix, gunakan mix tanpa sumber teknis, synthetic rendah, dan tokenizer baru jika train dari nol:
+Untuk chat-clean/chat-fix dari nol, pakai manual-first corpus, synthetic rendah, dan tokenizer baru. Ini lebih bersih daripada mencampur social/forum/public QA saat dataset manual masih kecil:
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,w11wo_twitter_indonesia_sarcastic,seacrowd_seadialogues \
-  --allow-sharealike \
-  --max-rows-per-source 3000 \
-  --source-limit seacrowd_seadialogues=150 \
-  --source-limit w11wo_twitter_indonesia_sarcastic=2000 \
+  --sources nixia_seed \
+  --max-rows-per-source 0 \
   --synthesize 800 \
   --synth-mode chat-clean \
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
   --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --extra-glob "data/templates/nixia_dataset_*.txt" \
   --output data/curated/chatclean_train.txt \
   --valid-output data/curated/chatclean_valid.txt \
   --report data/curated/chatclean_report.json
@@ -195,11 +280,13 @@ Hasil audit terakhir untuk chat-clean:
 
 ```text
 readiness=small_finetune_candidate
-train=1582
-valid=175
-synthetic_ratio=25.5%
+train=1413
+valid=157
+synthetic_ratio=28.5%
 train_valid_overlap=0
 ```
+
+Catatan vocab: token seperti `▁aku`, `anyaan`, atau `eekend` adalah subword BPE normal; `▁` berarti ada spasi sebelum token. Yang perlu dihindari adalah mojibake/simbol asing dan nama orang dari corpus noisy. Builder sekarang menormalisasi `%`, `+`, `&`, escape aneh, mojibake, dan nama setelah sapaan seperti `Uda Reza` -> `Uda`.
 
 Fine-tune pendek dari model long:
 

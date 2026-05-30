@@ -9,3 +9,5 @@ burn = { version = "~0.21", default-features = false, features = ["std", "train"
 [features]
 default = []
 wgpu-backend = ["burn/wgpu"]
+cuda-backend = ["burn/cuda"]
+rocm-backend = ["burn/rocm"]

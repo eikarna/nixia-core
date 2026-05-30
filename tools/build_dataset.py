@@ -84,7 +84,14 @@ REJECT_TERMS = {
     # while still allowing normal emotional-support conversations.
     "porn", "bokep", "colmek", "pemerkosaan", "memperkosa", "bunuh diri",
     "cara bunuh", "bom rakitan", "narkoba", "sabu", "judi online",
+    "phising", "phishing", "nge-hack", "hack akun", "ip address", "lacak lokasi",
 }
+
+MOJIBAKE_MARKERS = set("ÂâÃãÅåÐðÏï�™€¿º¸³£œ")
+PERSON_TITLE_RE = re.compile(
+    r"\b(?P<title>Uda|Uni|Mak|Pak|Bu|Bapak|Ibu|Bang|Kak|Mas|Mbak)\s+"
+    r"(?P<name>[A-Z][A-Za-zÀ-ÿ]{2,}(?:\s+[A-Z][A-Za-zÀ-ÿ]{2,})?)\b"
+)
 
 EMOJI_REPLACEMENTS = {
     "😂": "<ketawa>", "🤣": "<ketawa>", "😭": "<nangis>", "😢": "<nangis>",
@@ -142,10 +149,9 @@ def main() -> int:
         if args.target_dialogues and len(dialogues) >= args.target_dialogues:
             break
 
-    for extra_path in args.extra_text:
+    for path in extra_text_paths(root, args):
         if args.target_dialogues and len(dialogues) >= args.target_dialogues:
             break
-        path = resolve_under_root(root, extra_path)
         source_id = f"extra_text:{path.name}"
         stats[source_id]["raw"] += 1
         for candidate in parse_nixia_text(path.read_text(encoding="utf-8")):
@@ -212,6 +218,12 @@ def parse_args() -> argparse.Namespace:
         default=[],
         help="Add a local corpus/style-pack file in <user>/<char> format. Can be repeated.",
     )
+    parser.add_argument(
+        "--extra-glob",
+        action="append",
+        default=[],
+        help="Add local corpus files matching a project-relative glob, e.g. data/templates/nixia_dataset_*.txt.",
+    )
     parser.add_argument("--synthesize", type=int, default=0, help="Add generated style-seed dialogues")
     parser.add_argument(
         "--synth-mode",
@@ -251,6 +263,27 @@ def parse_source_limits(values: list[str]) -> dict[str, int]:
             raise SystemExit(f"invalid --source-limit {value!r}; limit must be >= 0")
         limits[source_id] = limit
     return limits
+
+
+def extra_text_paths(root: Path, args: argparse.Namespace) -> list[Path]:
+    paths = [resolve_under_root(root, path) for path in args.extra_text]
+
+    for pattern in args.extra_glob:
+        if Path(pattern).is_absolute() or ".." in Path(pattern).parts:
+            raise SystemExit(f"refusing unsafe --extra-glob pattern: {pattern}")
+        matches = sorted(path for path in root.glob(pattern) if path.is_file())
+        if not matches:
+            raise SystemExit(f"--extra-glob matched no files: {pattern}")
+        paths.extend(resolve_under_root(root, str(path)) for path in matches)
+
+    deduped = []
+    seen = set()
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        deduped.append(path)
+    return deduped
 
 
 def resolve_under_root(root: Path, path: str) -> Path:
@@ -675,15 +708,51 @@ def clean_dialogue(
 
 def clean_text(text: str) -> str:
     text = html.unescape(str(text))
+    text = normalize_escaped_text(text)
+    text = text.translate(str.maketrans({
+        "\u00a0": " ",
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2026": "...",
+        "\u00b0": " derajat ",
+        "\u00b2": " persegi ",
+    }))
     for emoji, replacement in EMOJI_REPLACEMENTS.items():
         text = text.replace(emoji, f" {replacement} ")
     text = re.sub(r"https?://\S+|www\.\S+", " <url> ", text)
     text = re.sub(r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b", " <email> ", text)
     text = re.sub(r"(?<!\w)@[\w_]{3,}", " <handle> ", text)
     text = re.sub(r"\+?\d[\d\s().-]{7,}\d", " <phone> ", text)
+    text = normalize_symbols(text)
+    text = anonymize_titled_names(text)
     text = re.sub(r"\s+", " ", text).strip()
     text = collapse_repeats(text, max_repeat=3)
     return text
+
+
+def normalize_escaped_text(text: str) -> str:
+    text = text.replace("\\t", " ").replace("\\n", " ").replace("\\r", " ")
+    text = re.sub(r"\\([!?.'\"/])", r"\1", text)
+    return text.replace("\\", " ")
+
+
+def normalize_symbols(text: str) -> str:
+    text = text.replace("&", " dan ")
+    text = text.replace("%", " persen ")
+    text = text.replace("+", " plus ")
+    text = re.sub(r"\^(?:[-_]?\^)?", " <senyum> ", text)
+    text = text.replace("~", " ")
+    text = text.replace("=", " ")
+    text = text.replace("@", " ")
+    return text
+
+
+def anonymize_titled_names(text: str) -> str:
+    return PERSON_TITLE_RE.sub(lambda match: match.group("title"), text)
 
 
 def collapse_repeats(text: str, max_repeat: int) -> str:
@@ -709,7 +778,9 @@ def reject_reason(text: str) -> str | None:
         return "long"
     if any(term in lower for term in REJECT_SUBSTRINGS):
         return "format_or_url"
-    if any(term in lower for term in REJECT_TERMS):
+    if looks_mojibake(text):
+        return "mojibake"
+    if contains_reject_term(lower):
         return "unsafe"
     if any(token in text for token in ("<url>", "<email>", "<phone>", "<handle>")):
         return "pii"
@@ -721,6 +792,22 @@ def reject_reason(text: str) -> str | None:
     if repeated_ngram_ratio(text) > 0.45:
         return "repetitive"
     return None
+
+
+def looks_mojibake(text: str) -> bool:
+    if any(char in MOJIBAKE_MARKERS for char in text):
+        return True
+    return any(0x80 <= ord(char) <= 0x9F for char in text)
+
+
+def contains_reject_term(lower_text: str) -> bool:
+    for term in REJECT_TERMS:
+        if " " in term:
+            if term in lower_text:
+                return True
+        elif re.search(rf"(?<!\w){re.escape(term)}(?!\w)", lower_text):
+            return True
+    return False
 
 
 def repeated_ngram_ratio(text: str) -> float:
@@ -1075,6 +1162,7 @@ def write_outputs(
             "synthetic_dialogues": synthetic_accepted,
             "synthetic_ratio": round(synthetic_ratio, 4),
             "extra_text": args.extra_text,
+            "extra_glob": args.extra_glob,
             "include_local_flavor": args.include_local_flavor,
         },
         "warnings": warnings,

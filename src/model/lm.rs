@@ -2,8 +2,8 @@ use burn::{
     config::Config,
     module::Module,
     nn::{
-        Dropout, DropoutConfig, Embedding, EmbeddingConfig, Linear, LinearConfig, RmsNorm,
-        RmsNormConfig, attention::generate_autoregressive_mask, loss::CrossEntropyLossConfig,
+        Dropout, DropoutConfig, Embedding, EmbeddingConfig, RmsNorm, RmsNormConfig,
+        attention::generate_autoregressive_mask, loss::CrossEntropyLossConfig,
     },
     prelude::*,
     tensor::{Int, Tensor},
@@ -45,7 +45,6 @@ pub struct TinyLm<B: Backend> {
     position_embedding: Embedding<B>,
     blocks: Vec<DecoderBlock<B>>,
     norm: RmsNorm<B>,
-    lm_head: Linear<B>,
     dropout: Dropout,
     max_seq_len: usize,
     vocab_size: usize,
@@ -73,7 +72,6 @@ impl TinyLmConfig {
                 .map(|_| block_config.init(device))
                 .collect(),
             norm: RmsNormConfig::new(self.d_model).init(device),
-            lm_head: LinearConfig::new(self.d_model, self.vocab_size).init(device),
             dropout: DropoutConfig::new(self.dropout).init(),
             max_seq_len: self.max_seq_len,
             vocab_size: self.vocab_size,
@@ -104,7 +102,17 @@ impl<B: Backend> TinyLm<B> {
             x = block.forward(x, causal_mask.clone());
         }
 
-        self.lm_head.forward(self.norm.forward(x))
+        self.output_projection(self.norm.forward(x))
+    }
+
+    fn output_projection(&self, hidden: Tensor<B, 3>) -> Tensor<B, 3> {
+        let [batch_size, seq_len, d_model] = hidden.dims();
+        let token_embedding_weight = self.token_embedding.weight.val();
+        let logits = hidden
+            .reshape([batch_size * seq_len, d_model])
+            .matmul(token_embedding_weight.transpose());
+
+        logits.reshape([batch_size, seq_len, self.vocab_size])
     }
 
     pub fn forward_classification(

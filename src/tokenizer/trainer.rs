@@ -33,6 +33,9 @@ pub fn train_vocab(corpus: &str, config: BpeTrainerConfig) -> Result<Vocabulary>
 
     let mut word_counts = HashMap::<String, usize>::new();
     for word in normalized.split_whitespace() {
+        if special::is_reserved(word) {
+            continue;
+        }
         *word_counts.entry(word.to_string()).or_default() += 1;
     }
 
@@ -174,7 +177,7 @@ fn sort_tail_by_frequency(vocab: &mut [String], words: &[WordEntry]) {
 
 #[cfg(test)]
 mod tests {
-    use super::{BpeTrainerConfig, train_vocab};
+    use super::{BpeTrainerConfig, special, train_vocab};
 
     #[test]
     fn trains_small_vocab() {
@@ -189,5 +192,23 @@ mod tests {
 
         assert!(vocab.len() <= 32);
         assert_eq!(vocab.token(0), Some("<pad>"));
+    }
+
+    #[test]
+    fn does_not_learn_special_token_fragments() {
+        let vocab = train_vocab(
+            "<user> aku capek <char> aku dengerin <user> makasih <char> sama-sama",
+            BpeTrainerConfig {
+                vocab_size: 64,
+                min_pair_frequency: 1,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(vocab.id(special::USER), Some(4));
+        assert_eq!(vocab.id(special::CHARACTER), Some(5));
+        assert!(vocab.id("▁<user>").is_none());
+        assert!(vocab.id("user>").is_none());
+        assert!(vocab.id("char>").is_none());
     }
 }

@@ -91,6 +91,14 @@ fn train_model(args: &[String]) -> Result<()> {
         .map(parse_f64)
         .transpose()?
         .unwrap_or(5.0e-5);
+    let num_workers = flag(args, "--num-workers")
+        .map(parse_usize)
+        .transpose()?
+        .unwrap_or(0);
+    let backend = flag(args, "--backend")
+        .map(parse_backend)
+        .transpose()?
+        .unwrap_or(TrainBackend::Flex);
     let init_from = flag(args, "--init-from").map(ToOwned::to_owned);
     let resume_epoch = flag(args, "--resume-epoch").map(parse_usize).transpose()?;
 
@@ -108,12 +116,14 @@ fn train_model(args: &[String]) -> Result<()> {
         num_epochs: epochs,
         batch_size,
         stride: max_seq_len / 2,
-        num_workers: 0,
+        num_workers,
         seed: 42,
         learning_rate,
     };
 
-    train_with_default_backend(
+    train_with_selected_backend(
+        backend,
+        args,
         artifact_dir,
         corpus.train_ids,
         corpus.valid_ids,
@@ -229,7 +239,52 @@ fn model_config_from_args(
     Ok(model)
 }
 
-fn train_with_default_backend(
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TrainBackend {
+    Flex,
+    Wgpu,
+    Cuda,
+    Rocm,
+}
+
+fn parse_backend(value: &str) -> Result<TrainBackend> {
+    match value {
+        "flex" | "cpu" => Ok(TrainBackend::Flex),
+        "wgpu" | "gpu" => Ok(TrainBackend::Wgpu),
+        "cuda" | "nvidia" => Ok(TrainBackend::Cuda),
+        "rocm" | "amd" => Ok(TrainBackend::Rocm),
+        other => Err(nixia::NixiaError::InvalidArgument(format!(
+            "unknown --backend {other:?}; available: flex, wgpu, cuda, rocm"
+        ))),
+    }
+}
+
+fn train_with_selected_backend(
+    backend: TrainBackend,
+    args: &[String],
+    artifact_dir: &str,
+    train_ids: Vec<usize>,
+    valid_ids: Vec<usize>,
+    config: TrainingConfig,
+    options: TrainOptions,
+) -> Result<()> {
+    match backend {
+        TrainBackend::Flex => {
+            train_with_flex_backend(artifact_dir, train_ids, valid_ids, config, options)
+        }
+        TrainBackend::Wgpu => {
+            train_with_wgpu_backend(args, artifact_dir, train_ids, valid_ids, config, options)
+        }
+        TrainBackend::Cuda => {
+            train_with_cuda_backend(args, artifact_dir, train_ids, valid_ids, config, options)
+        }
+        TrainBackend::Rocm => {
+            train_with_rocm_backend(args, artifact_dir, train_ids, valid_ids, config, options)
+        }
+    }
+}
+
+fn train_with_flex_backend(
     artifact_dir: &str,
     train_ids: Vec<usize>,
     valid_ids: Vec<usize>,
@@ -239,6 +294,113 @@ fn train_with_default_backend(
     type Backend = burn::backend::Autodiff<burn::backend::Flex>;
     let device = Default::default();
     train::<Backend>(artifact_dir, train_ids, valid_ids, config, options, device)
+}
+
+#[cfg(feature = "wgpu-backend")]
+fn train_with_wgpu_backend(
+    args: &[String],
+    artifact_dir: &str,
+    train_ids: Vec<usize>,
+    valid_ids: Vec<usize>,
+    config: TrainingConfig,
+    options: TrainOptions,
+) -> Result<()> {
+    type Backend = burn::backend::Autodiff<burn::backend::Wgpu>;
+    let index = flag(args, "--device-index")
+        .map(parse_usize)
+        .transpose()?
+        .unwrap_or(0);
+    let device = match flag(args, "--gpu-kind").unwrap_or("default") {
+        "default" => burn::backend::wgpu::WgpuDevice::DefaultDevice,
+        "discrete" => burn::backend::wgpu::WgpuDevice::DiscreteGpu(index),
+        "integrated" => burn::backend::wgpu::WgpuDevice::IntegratedGpu(index),
+        "virtual" => burn::backend::wgpu::WgpuDevice::VirtualGpu(index),
+        "cpu" => burn::backend::wgpu::WgpuDevice::Cpu,
+        other => {
+            return Err(nixia::NixiaError::InvalidArgument(format!(
+                "unknown --gpu-kind {other:?}; available: default, discrete, integrated, virtual, cpu"
+            )));
+        }
+    };
+    train::<Backend>(artifact_dir, train_ids, valid_ids, config, options, device)
+}
+
+#[cfg(not(feature = "wgpu-backend"))]
+fn train_with_wgpu_backend(
+    _args: &[String],
+    _artifact_dir: &str,
+    _train_ids: Vec<usize>,
+    _valid_ids: Vec<usize>,
+    _config: TrainingConfig,
+    _options: TrainOptions,
+) -> Result<()> {
+    Err(nixia::NixiaError::InvalidArgument(
+        "--backend wgpu requires: cargo run --features wgpu-backend -- ...".to_string(),
+    ))
+}
+
+#[cfg(feature = "cuda-backend")]
+fn train_with_cuda_backend(
+    args: &[String],
+    artifact_dir: &str,
+    train_ids: Vec<usize>,
+    valid_ids: Vec<usize>,
+    config: TrainingConfig,
+    options: TrainOptions,
+) -> Result<()> {
+    type Backend = burn::backend::Autodiff<burn::backend::Cuda>;
+    let index = flag(args, "--device-index")
+        .map(parse_usize)
+        .transpose()?
+        .unwrap_or(0);
+    let device = burn::backend::cuda::CudaDevice { index };
+    train::<Backend>(artifact_dir, train_ids, valid_ids, config, options, device)
+}
+
+#[cfg(not(feature = "cuda-backend"))]
+fn train_with_cuda_backend(
+    _args: &[String],
+    _artifact_dir: &str,
+    _train_ids: Vec<usize>,
+    _valid_ids: Vec<usize>,
+    _config: TrainingConfig,
+    _options: TrainOptions,
+) -> Result<()> {
+    Err(nixia::NixiaError::InvalidArgument(
+        "--backend cuda requires: cargo run --features cuda-backend -- ...".to_string(),
+    ))
+}
+
+#[cfg(feature = "rocm-backend")]
+fn train_with_rocm_backend(
+    args: &[String],
+    artifact_dir: &str,
+    train_ids: Vec<usize>,
+    valid_ids: Vec<usize>,
+    config: TrainingConfig,
+    options: TrainOptions,
+) -> Result<()> {
+    type Backend = burn::backend::Autodiff<burn::backend::Rocm>;
+    let index = flag(args, "--device-index")
+        .map(parse_usize)
+        .transpose()?
+        .unwrap_or(0);
+    let device = burn::backend::rocm::RocmDevice { index };
+    train::<Backend>(artifact_dir, train_ids, valid_ids, config, options, device)
+}
+
+#[cfg(not(feature = "rocm-backend"))]
+fn train_with_rocm_backend(
+    _args: &[String],
+    _artifact_dir: &str,
+    _train_ids: Vec<usize>,
+    _valid_ids: Vec<usize>,
+    _config: TrainingConfig,
+    _options: TrainOptions,
+) -> Result<()> {
+    Err(nixia::NixiaError::InvalidArgument(
+        "--backend rocm requires: cargo run --features rocm-backend -- ...".to_string(),
+    ))
 }
 
 fn flag<'a>(args: &'a [String], name: &str) -> Option<&'a str> {
@@ -269,18 +431,34 @@ fn parse_f64(value: &str) -> Result<f64> {
     })
 }
 
+#[cfg(test)]
+mod tests {
+    use super::{TrainBackend, parse_backend};
+
+    #[test]
+    fn parses_train_backend_aliases() {
+        assert_eq!(parse_backend("flex").unwrap(), TrainBackend::Flex);
+        assert_eq!(parse_backend("cpu").unwrap(), TrainBackend::Flex);
+        assert_eq!(parse_backend("gpu").unwrap(), TrainBackend::Wgpu);
+        assert_eq!(parse_backend("nvidia").unwrap(), TrainBackend::Cuda);
+        assert_eq!(parse_backend("amd").unwrap(), TrainBackend::Rocm);
+        assert!(parse_backend("metal").is_err());
+    }
+}
+
 fn print_help() {
     println!(
         "nixia - tiny Indonesian causal language model\n\n\
 Commands:\n\
   tokenizer --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --vocab-size 8000\n\
   train --preset nixia-micro --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run\n\
+  train --backend wgpu --gpu-kind discrete --device-index 0 --num-workers 4 --preset nixia-micro --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run\n\
   train --init-from artifacts/base --artifacts artifacts/finetune --corpus data/curated/train_corpus.txt --valid data/curated/valid_corpus.txt\n\
   train --resume-epoch 10 --epochs 15 --artifacts artifacts/run --corpus data/curated/train_corpus.txt --valid data/curated/valid_corpus.txt\n\
   eval --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run\n\
   generate --chat --artifacts artifacts/run --vocab artifacts/vocab.txt --prompt \"halo, kamu siapa?\"\n\n\
 Presets: dev-smoke, nixia-micro, nixia-tiny\n\
-Training uses Burn Flex CPU for stable, portable checkpoints.\n\
+Training backends: flex (default), wgpu, cuda, rocm. GPU backends require matching Cargo features.\n\
 Use --init-from for fine-tuning compatible model weights, or --resume-epoch to continue an existing checkpoint."
     );
 }

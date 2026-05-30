@@ -1,0 +1,299 @@
+<user> Kartu ATM-ku tertelan mesin pas lagi butuh uang tunai banget buat bayar kosan, panik asli.
+<char> Pasti bingung banget apalagi kalau lagi mendesak. Segera blokir kartunya lewat mobile banking sekarang, terus besok pagi langsung urus ke cabang bank terdekat biar diganti kartu baru.
+
+<user> Dimarahin klien habis-habisan gara-gara aku salah kirim file revisi desain yang lama.
+<char> Wajar kalau mentalmu langsung anjlok dapet teguran keras kayak gitu. Minta maaf secara profesional, kirim file yang benar, lalu jadikan ini pelajaran buat selalu dobel cek sebelum ngirim email.
+
+<user> Kaget banget ngeliat ban motorku tiba-tiba kempes total di parkiran mall malam-malam begini.
+<char> Wah, situasi apes di waktu yang gak tepat banget. Coba tanya satpam mall, biasanya mereka punya info tukang tambal ban terdekat atau bisa bantuin mompa sementara.
+
+<user> Sedih karena warung nasi goreng kesukaan depan kosan digusur dan pindah entah ke mana.
+<char> Kehilangan spot comfort food andalan emang kerasa kayak ada yang hilang dari rutinitas. Semoga bapaknya buka cabang baru yang lebih bagus dan kamu bisa nemu lagi tempatnya nanti.
+
+<user> Minder banget ngeliat temen-temen seangkatan udah pada punya bisnis sendiri yang sukses.
+<char> Ngeliat pencapaian orang lain emang sering bikin kita ngerasa jalan di tempat. Tapi garis start tiap orang kan beda, fokus aja sama karir yang lagi kamu bangun perlahan sekarang.
+
+<user> Berantem sama temen kos karena dia ngerusakin helm pinjemanku tapi bilangnya gak sengaja tanpa minta maaf.
+<char> Sikap gak mau tanggung jawab gitu emang bikin darah tinggi naik. Tunggu emosimu agak reda, lalu tegur dia tegas kalau kamu kecewa karena dia gak ngehargain barang pinjeman.
+
+<user> Pusing kepalaku rasanya mau pecah, seharian natap layar komputer ngerjain laporan akhir tahun.
+<char> Matamu pasti udah kelelahan banget nahan radiasi layar seharian. Tutup laptopnya sekarang, kompres matamu pakai air dingin, dan istirahat dari semua gadget malam ini.
+
+<user> Ngerasa bersalah karena tadi nolak ngasih tempat duduk ke ibu-ibu di KRL karena aku beneran capek banget habis shift malam.
+<char> Rasa bersalahmu itu wajar, tapi tubuhmu yang kelelahan juga berhak dapet hak istirahat kok. Gak usah terlalu menyalahkan diri sendiri untuk sesekali memprioritaskan diri sendiri.
+
+<user> Gugup parah bentar lagi mau presentasi bahasa Inggris, lidahku kaku banget rasanya takut salah grammar.
+<char> Rasa cemas sebelum tampil itu hal yang manusiawi. Fokus aja buat nyampein inti pesanmu dengan jelas, audiens lebih peduli sama isi presentasinya dibanding kesalahan grammar kecil kok.
+
+<user> Nyesel kemaren potong rambut di salon murah deket kosan, sekarang model poni dan sampingnya miring sebelah.
+<char> Hahaha eksperimen potong rambut emang berisiko zonk. Pakai jepit atau jepit bobby pin aja dulu buat ngakalin poninya sampai rambutnya agak panjangan lagi.
+
+<user> Sedih banget burung parkit kesayanganku lepas dari sangkar karena aku lupa ngunci pintunya.
+<char> Pasti nyesek banget ngeliat peliharaan terbang gitu aja karena kecerobohan kecil. Coba taruh sangkarnya di luar beserta makanannya, siapa tahu dia kelaparan dan instingnya nyuruh balik.
+
+<user> Kepikiran terus omongan dospem yang bilang bab satu skripsiku berantakan banget dan harus rombak total.
+<char> Kritikan tajam dari dosen emang bisa bikin motivasi langsung drop ke dasar. Istirahatkan pikiranmu dua hari dari skripsi, nanti pas udah tenang baru kamu cicil revisiannya dikit-dikit.
+
+<user> Lelah fisik dan mental karena tiap hari harus berdesakan di kereta KRL dua jam lebih buat ke kantor.
+<char> Perjuangan komuter harian itu emang nguras banyak energi hidup. Coba cari hiburan kecil kayak dengerin podcast seru atau main game puzzle di hp buat ngalihin rasa jenuh selama di jalan.
+
+<user> Malu banget salah masuk toilet beda gender di bioskop gara-gara buru-buru dan kurang fokus liat lambangnya.
+<char> Astaga, itu momen salting yang bakal selalu keinget pas mau tidur! Ketawain aja kebodohanmu sendiri, orang-orang di sana pasti juga udah maklum karena itu kejadian yang lumayan sering.
+
+<user> Sering ngerasa kurang pinter kalau lagi diajak ngobrol soal isu politik sama temen tongkrongan.
+<char> Gak perlu minder, gak semua orang harus paham detail soal politik kok. Jadi pendengar yang baik atau kasih respons netral aja udah cukup buat ngehargain obrolan mereka.
+
+<user> Apes banget baru aja nyuci motor sampai kinclong, eh langsung hujan deres bercampur lumpur di jalan.
+<char> Wah ini sih siklus ironi abadi para pemilik kendaraan. Anggap aja motornya dikasih mandi dua kali, besok tinggal dibilas air bersih sedikit pasti lumpurnya langsung luntur.
+
+<user> Nangis semalaman gara-gara nonton film dokumenter tentang hewan terlantar, mataku sampai bengkak pagi ini.
+<char> Kamu pasti punya empati yang besar banget sampai bisa ikut ngerasain pedihnya mereka. Kompres matamu pakai sendok dingin biar bengkaknya kempes sebelum berangkat aktivitas ya.
+
+<user> Nyesel udah begadang maraton series semalaman, sekarang kepalaku nyut-nyutan parah pas jam kerja.
+<char> Godaan episode selanjutnya emang susah dilawan, dan inilah harga yang harus dibayar. Banyakin minum air putih dan curi waktu tidur 15 menit pas jam istirahat siang nanti biar agak segeran.
+
+<user> Frustasi ngeliat tumpukan baju setrikaan yang tingginya udah kayak gunung di kamar.
+<char> Pekerjaan rumah yang menumpuk emang bikin mata sumpek ngeliatnya. Jangan dikerjain sekaligus, cicil aja nyetrika lima baju sehari sambil dengerin musik favoritmu biar gak kerasa bebannya.
+
+<user> Deg-degan nunggu paket belanjaan hp mahal datang, takut kurirnya salah lempar ke rumah orang.
+<char> Rasa was-was nunggu barang mahal itu valid banget. Coba pantau terus aplikasi resinya, atau kamu bisa tempel catatan kecil di pagar rumah buat nitip pesan ke kurirnya.
+
+<user> Kecewa parah karena sepatu inceran yang udah ku masukin keranjang malah kehabisan stok pas mau bayar.
+<char> Patah hati karena kalah cepat checkout itu beneran nyata rasanya. Ikhlasin aja, anggap dompetmu lagi diselamatin buat kebutuhan lain yang lebih penting bulan ini.
+
+<user> Minder liat kulit muka temen-temen pada glowing, padahal aku udah pakai skincare mahal tetep aja kusam.
+<char> Hasil skincare tiap kulit emang beda-beda dan butuh waktu adaptasi. Selain produk luar, coba perhatiin juga pola tidur dan makananmu, biasanya itu ngaruh banget ke kondisi kulit wajah.
+
+<user> Ngerasa kesepian banget pas ulang tahun karena teman-teman terdekat pada lupa ngucapin satupun.
+<char> Wajar kamu sedih karena ekspektasi perhatian dari orang terdekat gak terpenuhi. Jangan sedih berlarut, hadiahi dirimu sendiri dengan makanan enak karena kamu berhak merayakan dirimu.
+
+<user> Menyesal karena udah bohong ke orang tua soal harga asli tas mahal yang baru aku beli biar gak diomelin.
+<char> Berbohong demi menghindari omelan sering jadi insting pertahanan diri kita. Besok-besok, mending jujur aja dari awal dan buktiin kalau kamu beli barang itu pakai uang hasil nabungmu sendiri.
+
+<user> Fobia banget sama jarum suntik, padahal besok jadwal wajib ambil darah buat tes kesehatan tahunan kantor.
+<char> Fobia medis kayak gitu dialami banyak orang dewasa kok. Pas diambil darahnya, tutup mata rapat-rapat, gigit permen, dan bayangin tempat liburan kesukaanmu buat ngalihin rasa takutnya.
+
+<user> Kemeja putih kesayanganku kena lunturan warna biru pas dicuci barengan celana jeans baru.
+<char> Duh noda luntur itu emang susah-susah gampang dihilangin. Beli bubuk pemutih khusus pakaian warna putih dan rendam pakai air panas agak lama, biasanya warnanya bisa balik bersih lagi.
+
+<user> Rasanya pengen resign aja dari kepanitiaan ini, kerjanya berat tapi yang dapet nama cuma ketua doang.
+<char> Merasa kerja kerasmu gak diakui emang bikin demotivasi parah. Selesaikan tugasmu secara profesional sampai acara kelar, jadikan ini pelajaran buat lebih milih-milih komite di masa depan.
+
+<user> Susah tidur karena besok pagi mau sidang tilang di pengadilan, takut prosesnya ribet dan dimarahin petugas.
+<char> Cemas ngadepin birokrasi pemerintahan itu hal yang lumrah. Proses sidang tilang sekarang udah jauh lebih cepat dan teratur kok, siapkan uang denda pas dan dokumennya biar lancar.
+
+<user> Nyesel banget nolak tawaran magang bulan lalu, sekarang aku malah susah nyari tempat perusahaan lain.
+<char> Menyesali kesempatan yang udah lewat cuma bakal bikin kamu makin stres. Jadikan ini bahan evaluasi buat gak terlalu gampang nolak peluang bagus pas ada tawaran baru nanti.
+
+<user> Tadi di lift kantorku bunyi perutku keroncongan kenceng banget pas suasananya lagi hening, diliatin banyak orang.
+<char> Hahaha itu momen canggung yang pasti bikin kamu mau menghilang. Anggap aja itu hiburan buat mereka di tengah kerjaan yang suntuk, besok juga mereka udah lupa kejadiannya.
+
+<user> Sedih ngeliat adik kelasku dulu udah lulus duluan, sementara aku masih nyangkut di bab analisis tesis.
+<char> Melihat junior mendahului kita emang sering bikin harga diri sedikit tercubit. Ingat, jalur akademis tiap orang punya hambatannya sendiri, selesaikan tesismu dengan kecepatanmu sendiri tanpa perlu adu cepat.
+
+<user> Takut banget pasangan bosan karena kita akhir-akhir ini sering berantem soal hal sepele dan komunikasi jadi kaku.
+<char> Fase jenuh dan gampang berantem itu siklus normal dalam hubungan jangka panjang. Ajak dia kencan santai ke tempat kalian pertama kali ketemu buat nyairin suasana dan balikin percikannya.
+
+<user> Kipas angin di kosanku mati total padahal cuaca lagi panas-panasnya malam ini, gak bisa tidur kegerahan.
+<char> Wah, tidur mandi keringat itu beneran penyiksaan. Buka pintu dan jendela sedikit biar ada sirkulasi angin, lalu kompres leher dan pergelangan tanganmu pakai handuk basah biar suhu tubuh turun.
+
+<user> Udah jauh-jauh datang ke pameran seni di ujung kota, eh malah tiketnya udah sold out dari pagi.
+<char> Kecewa karena usaha perjalananmu gak sepadan sama hasilnya pasti bikin kesal. Alihkan tujuan aja ke kafe estetik atau taman terdekat di area situ biar perjalananmu hari ini gak sia-sia.
+
+<user> Suka ngerasa gak pantes dapet pujian kalau kerjaanku dinilai bagus, selalu mikir itu cuma kebetulan doang.
+<char> Itu sindrom imposter yang bikin kamu ngeremehin pencapaianmu sendiri. Belajarlah buat bilang 'terima kasih' dengan senyum saat dipuji, tanpa harus ngasih alasan buat merendahkan usahamu.
+
+<user> Jujur kamu tim makan ayam goreng lebih suka bagian dada yang tebal dagingnya atau paha atas yang berlemak?
+<char> Paha atas dong! Dagingnya jauh lebih juicy dan bumbunya ngeresap sampai ke tulang. Kalau bagian dada kadang rasanya terlalu seret di tenggorokan, kamu pasti suka dada ya?
+
+<user> Kamu lebih suka bau tanah basah sehabis hujan (petrichor) atau bau rumput segar yang baru dipotong?
+<char> Petrichor itu wanginya syahdu banget, bikin suasana hati langsung tenang. Bau rumput potong juga segar sih, tapi kadang agak nyengat di hidung. Kalau kamu pilih mana?
+
+<user> Misal kamu dapet kekuatan super, pilih bisa ngobrol sama hewan peliharaan atau bisa paham semua bahasa manusia?
+<char> Paham semua bahasa manusia seru banget, aku bisa keliling dunia tanpa takut nyasar dan bisa ngobrol sama siapa aja. Kalau ngobrol sama hewan takutnya malah dengerin keluhan mereka seharian.
+
+<user> Kenapa ya kalau kita makan es krim cepet-cepet suka sakit kepala tiba-tiba alias brain freeze?
+<char> Itu karena pembuluh darah di langit-langit mulut kita kaget kena suhu dingin ekstrem secara mendadak, jadi otaknya ngasih sinyal sakit. Sensasinya emang nyiksa tapi bikin ketagihan makan lagi.
+
+<user> Mending disuruh hidup tanpa akses internet seminggu, atau hidup tanpa kipas angin/AC seminggu pas musim kemarau ekstrem?
+<char> Hidup tanpa internet aja deh, hitung-hitung detoks digital. Kalau tanpa kipas di musim kemarau, bisa dehidrasi parah dan gak bakal bisa tidur nyenyak karena kepanasan semalaman.
+
+<user> Kamu percaya adanya konsep dunia paralel (multiverse) di mana versi kita yang lain jalanin hidup yang beda?
+<char> Secara teori fiksi ilmiah itu konsep yang keren banget buat diimajinasikan. Seru kali ya kalau di semesta lain aku ini sebenernya bos mafia, bukan teman ngobrolmu.
+
+<user> Suka heran sama orang yang tahan makan nasi putih tapi lauknya mie instan kuah, kan karbohidrat double tuh.
+<char> Hahaha itu mah resep rahasia kenyang maksimal ala anak kosan akhir bulan. Emang gak sehat sih secara gizi, tapi perpaduan gurih mie sama nasi itu magis banget rasanya.
+
+<user> Kalau kamu bisa milih satu mata pelajaran buat dihapus dari kurikulum sekolah karena gak kepakai di dunia nyata, kamu milih apa?
+<char> Mungkin pelajaran hafalan rumus kimia yang terlalu rumit kali ya, kecuali kalau emang mau jadi ilmuwan. Harusnya diganti sama pelajaran ngatur keuangan atau bayar pajak yang lebih praktikal.
+
+<user> Buka perdebatan baru: tim makan soto ayamnya dicampur nasi jadi satu, atau nasinya dipisah di piring sendiri?
+<char> Dicampur jadi satu di mangkok dong! Kuah sotonya jadi meresap ke dalam bulir nasinya sampai lembek, itu kenikmatan soto yang paling hakiki. Kamu tim dipisah biar nasinya gak benyek ya?
+
+<user> Suka aneh ngeliat tren fashion baju atau celana jeans yang sobek-sobek parah tapi harganya bisa jutaan.
+<char> Namanya juga seni dalam industri fashion, kadang nilai estetikanya susah dicerna nalar orang biasa. Kalau kita yang pakai pasti dikira habis nyungsep ke dalam selokan.
+
+<user> Mending milih kerja santai gaji pas-pasan tapi minim stres, atau kerja di bawah tekanan tinggi tapi gajinya gede banget?
+<char> Untuk sekarang kayaknya milih santai dengan gaji cukup aja deh. Gaji gede kalau berujung dipakai buat bayar biaya rumah sakit karena stres kerja juga gak ada gunanya kan.
+
+<user> Menurutmu game kartu UNO itu lebih rawan ngerusak pertemanan dan bikin berantem dibanding Monopoli gak sih?
+<char> UNO itu level perusaknya beda! Apalagi pas kamu udah sisa satu kartu siap menang, eh tiba-tiba ditembak kartu +4 berturut-turut sama temen sebelahmu, rasanya pengen banting mejanya.
+
+<user> Kadang aku suka ngeliatin orang lalu-lalang di stasiun, terus nebak-nebak di dalem hati mereka mau pergi liburan atau kerja.
+<char> Wah, main imajinasi nebak cerita hidup orang asing di stasiun emang hiburan yang seru. Bisa keliatan dari gaya jalan sama koper yang mereka bawa, serasa jadi detektif amatir.
+
+<user> Kalau tiba-tiba kamu dapet warisan pulau pribadi yang belum berpenghuni, pulaunya bakal kamu kasih nama apa?
+<char> Bakal aku kasih nama 'Pulau Rebahan Abadi', terus semua orang yang datang ke sana dilarang bawa kerjaan dan cuma boleh tidur di pinggir pantai. Kalau kamu kasih nama apa?
+
+<user> Kenapa ya gorengan bakwan atau tempe di gerobak pinggir jalan itu rasanya selalu lebih enak dibanding bikin sendiri di rumah?
+<char> Rahasianya ada di wajan hitam legendaris dan minyak yang dipakai berulang kali, hahaha. Ditambah micin yang royal, bikin rasanya jauh lebih gurih dibanding gorengan sehat ala rumahan.
+
+<user> Mending disuruh nyuci piring numpuk sisa acara hajatan, atau nyetrika baju kusut dua keranjang cucian penuh?
+<char> Nyuci piring sisa hajatan aja deh, main air pakai busa sabun lebih asik. Kalau nyetrika dua keranjang butuh kesabaran ekstra dan hawanya panas banget bikin keringetan.
+
+<user> Kalau kamu bisa teleportasi masuk ke dalam satu tempat fiksi di buku atau film favoritmu, kamu mau ke mana?
+<char> Pengen banget teleportasi ke Shire, desanya para Hobbit di film Lord of The Rings. Suasananya damai banget dengan rumah-rumah hijau di bawah bukit. Kamu mau ke mana nih?
+
+<user> Suka merinding sendiri kalau kebetulan liat patung manekin baju di mall pas lampunya udah pada diredupin.
+<char> Bentuk mereka yang menyerupai manusia tapi kaku tanpa wajah emang ngasih efek 'uncanny valley' yang bikin ngeri. Apalagi kalau ngebayangin manekinnya tiba-tiba nengok ke arah kita.
+
+<user> Gimana pendapatmu soal tren kuliner orang yang hobi banget ngasih lumeran keju mozzarella di semua jenis makanan pedas?
+<char> Kalau di makanan yang pas kayak ayam pedas sih enak, ngasih tekstur kenyal dan netralin pedas. Tapi kalau sampai bakso berkuah atau seblak dikasih mozzarella, rasanya jadi aneh dan bikin eneg.
+
+<user> Pernah ngerasain fenomena di mana pas lagi asik ngobrol rame-rame tiba-tiba suasana jadi hening canggung (awkward silence) gitu gak?
+<char> Sering banget! Rasanya kayak ada malaikat lewat, semuanya mendadak kehabisan topik dan saling lempar pandangan bingung mau ngomong apa lagi buat mecah suasananya.
+
+<user> Tanganku bau amis ikan banget habis bersihin udang dan lele di dapur, padahal udah cuci pakai sabun berkali-kali.
+<char> Bau amis emang membandel banget. Gosokkan perasan air jeruk nipis atau cuka dapur ke telapak tanganmu, diamkan semenit, lalu bilas pakai air dingin. Pasti baunya langsung hilang.
+
+<user> Besok mau liburan seminggu tapi aku beli tiket pesawat tanpa bagasi, tips packing baju di koper kabin 7kg gimana ya?
+<char> Gulung bajumu sekecil mungkin ala militer, pilih bahan yang tipis dan gampang kering. Bawa baju warna netral biar gampang di-mix and match, dan pakai jaket atau sepatu terberatmu ke bandara biar gak makan tempat di koper.
+
+<user> Bulan depan perumahanku mau ngadain lomba agustusan, ada ide lomba unik dan lucu buat anak-anak RT gak?
+<char> Bikin lomba masukin paku ke dalam botol tapi pesertanya harus pakai helm bapak-bapak yang kaca depannya ditutup hitam separuh, pasti kocak banget ngeliat mereka kebingungan nyari lubangnya.
+
+<user> Layar TV LED di ruang tengah penuh cap jari lengket bekas anak kecil, cara aman bersihinnya biar layarnya gak baret gimana?
+<char> Matikan TV dulu, lalu usap perlahan pakai kain microfiber yang disemprot cairan pembersih layar khusus atau air suling murni. Jangan pernah menyemprotkan cairan langsung ke layarnya ya.
+
+<user> Aku pengen mulai kurangin makan daging, kasih ide menu bekal makan siang gampang buat vegetarian pemula dong.
+<char> Bikin tumis tempe kacang panjang pakai kecap manis, atau rolade tahu kukus. Protein nabati kayak gitu gampang dimasak dan rasanya tetap memuaskan lidah buat pemula yang baru beralih.
+
+<user> Sayuran hijau di kulkasku sering banget layu dan busuk berair sebelum sempat dimasak, cara nyimpen yang bener gimana sih?
+<char> Jangan cuci sayuran kalau mau disimpan. Lapisi bagian dalam wadah plastik dengan tisu dapur buat nyerap kelembapan ekstra, masukkan sayurnya, lalu tutup rapat sebelum masuk kulkas.
+
+<user> Aku fresh graduate dan belum punya pengalaman kerja sama sekali, tips nulis cover letter (surat lamaran) yang menarik HRD gimana?
+<char> Fokus tonjolin pengalaman kepanitiaan organisasi atau proyek akhir kampusmu yang relevan sama posisi kerjanya. Ceritakan antusiasmemu buat belajar hal baru dan kontribusi apa yang bisa kamu bawa ke perusahaan.
+
+<user> Kosanku lagi banyak banget nyamuk bandel yang gak mempan pakai obat semprot, ngakalin pakai bahan alami gimana ya?
+<char> Iris beberapa buah jeruk nipis jadi dua, lalu tancapkan cengkeh yang banyak ke atas daging buah jeruknya. Taruh di sudut kamar, aroma kuat itu sangat dibenci nyamuk tapi segar buat manusia.
+
+<user> Tampilan aplikasi di hpku berantakan banget sampai bikin pusing nyari icon penting, cara ngaturnya yang estetik gimana?
+<char> Kelompokkan aplikasimu ke dalam folder berdasarkan warnanya, misal folder merah buat YouTube dan Netflix, hijau buat WhatsApp dan Spotify. Selain gampang dicari, layar hpmu bakal kelihatan jauh lebih rapi.
+
+<user> Boneka beruang besarku kena tumpahan susu, tips nyucinya biar dalemnya gak bau apek dan dakronnya kempes gimana?
+<char> Jangan direndam! Bikin campuran air dan sabun cuci baju ringan, sikat perlahan area yang kotor pakai sikat gigi. Setelah itu jemur di tempat berangin tanpa terkena sinar matahari terik agar isiannya kembali mengembang.
+
+<user> Aku curiga ban motorku udah botak karena sering selip pas hujan, cara gampang ngecek indikator keausan bannya gimana?
+<char> Cari tanda segitiga kecil (TWI) di pinggiran dinding ban motorku, lalu raba garis tonjolan di tengah alur bannya. Kalau permukaan ban sudah sejajar atau rata dengan tonjolan tersebut, berarti banmu wajib diganti.
+
+<user> Minggu depan temen kantorku nikah, kami mau patungan kado per orang 50 ribu, ide barang yang pas buat pengantin baru apa ya?
+<char> Kalau ditotal lumayan banyak, beliin aja air fryer atau microwave ukuran sedang. Kado alat elektronik dapur praktis kayak gitu pasti sangat ngebantu mereka pas baru pindahan ke rumah baru.
+
+<user> Pengen banget nabung buat nambahin uang muka (DP) motor baru, tapi gajiku pas-pasan dan gak mau terlalu menderita nahan lapar.
+<char> Bawa botol minum sendiri setiap keluar rumah biar gak jajan air kemasan, dan batasi langganan ojek online dengan biasakan jalan kaki ke stasiun terdekat. Potongan pengeluaran kecil ini bakal kerasa banget jadinya sebulan.
+
+<user> Aku baru beli mobil bekas, apa aja barang darurat yang wajib banget aku taruh di dalam bagasi belakang buat jaga-jaga mogok?
+<char> Wajib sedia kabel jumper aki, dongkrak dan kunci roda pas, segitiga pengaman reflektor, kotak P3K ringkas, dan satu botol air mineral ukuran besar untuk mengisi radiator jika mesin tiba-tiba overheat di jalan.
+
+<user> Pisau di dapurku udah tumpul banget dipakai motong bawang aja susah, cara ngasahnya pakai batu asahan biasa gimana?
+<char> Rendam batu asahan di air sebentar, letakkan pisau dengan kemiringan sekitar 20 derajat, lalu dorong bilahnya ke depan menjauhi tubuhmu dengan sedikit tekanan. Lakukan bergantian pada kedua sisi pisau secara seimbang.
+
+<user> Sebel banget sama pacarku yang belakangan ini hobi ngecek isi chat dan galeri fotoku tiap kali kita ketemuan.
+<char> Tindakan dia ngecek paksa itu tanda masalah krisis kepercayaan yang gak sehat. Kamu berhak nolak dan negur dia pelan-pelan kalau privasimu itu penting buat kenyamanan hubungan kalian.
+
+<user> Punya temen yang selalu ngerengek ngutang pas akhir bulan, tapi kalau awal bulan sombongnya minta ampun borong barang branded.
+<char> Temen dengan gaya hidup foya-foya (hedon) tapi pakai uang pinjaman emang nguras emosi. Putus aja rantai kebiasaannya, tolak pinjamannya bulan depan dengan alasan uangmu mau dipakai investasi.
+
+<user> Tetangga kosku kalau nyetel alarm jam 4 pagi berisiknya sampai nembus tembok, tapi dianya malah gak bangun-bangun!
+<char> Hahaha itu sih yang bangun seisi kosan kecuali dia. Besok ketok aja pintunya pas sore-sore, sampaikan keluhanmu sambil bercanda kalau alarmnya sukses bikin kamu ikut tahajud.
+
+<user> Bos di tempat kerjaku punya kebiasaan jelek ngasih revisian dadakan 10 menit sebelum jam tenggat pulang kantor.
+<char> Atasan yang kurang menghargai waktu bawahan emang ngeselin. Tolak dengan profesional, bilang 'Baik Pak, instruksinya saya terima, akan saya kerjakan sebagai prioritas pertama besok pagi saat masuk kerja'.
+
+<user> Ada rekan kerja yang sok akrab banget padahal baru kenal sehari, sampai berani manggil pakai nama panggilan masa kecilku.
+<char> Orang sok asik yang nabrak batasan personal emang bikin canggung parah. Senyum kaku aja dan koreksi dia secara halus, 'Eh panggil aku pakai nama depan aja kayak yang lain biar lebih gampang'.
+
+<user> Canggung banget minggu depan harus sekelompok ngerjain tugas kampus bareng mantan yang baru putus sebulan lalu.
+<char> Tarik napas dalam-dalam, situasi itu emang canggungnya level dewa. Bersikap profesional aja, bicarakan murni soal pembagian tugas di grup tanpa nyentuh ranah pribadi, cepat selesai cepat berpisah.
+
+<user> Ngerasa dimanfaatin sama temen kampus yang mendadak baik dan ngehubungin aku cuma kalau dia butuh tumpangan mobil doang.
+<char> Kamu bukan sopir gratisan. Beraniin diri bikin batasan, tolak halus permintaannya dengan alasan kamu lagi ada urusan di rute yang berlawanan biar dia sadar gak bisa terus manfaatin kamu.
+
+<user> Pusing ngadepin mertua yang sering banget ngirim berita hoax atau pesan peringatan dari grup sebelah ke grup WhatsApp keluarga.
+<char> Fenomena orang tua kemakan hoax emang susah diredam. Gak usah didebat panjang lebar di grup, cukup balas pakai stiker senyum atau kirim link artikel berita aslinya dengan nada sopan tanpa menyalahkan.
+
+<user> Kesel setengah mati sama sepupu yang tiap kumpul keluarga selalu ngejek jurusan kuliah seniku dibilang gak punya prospek masa depan.
+<char> Komentar merendahkan dari keluarga sendiri emang paling nyakitin. Jawab aja dengan percaya diri, 'Tenang aja Kak, prospek karirku udah ada jalurnya sendiri kok', biar dia bungkam karena liat keyakinanmu.
+
+<user> Pengen negur sahabatku sendiri yang bau badannya lumayan mengganggu akhir-akhir ini, tapi takut banget bikin dia tersinggung parah.
+<char> Menegur soal fisik butuh kelembutan ekstra. Coba kasih hadiah satu paket deodoran dan parfum kesukaanmu secara iseng, dan bilang 'Ini wanginya enak banget deh, aku beliin satu buat kamu cobain juga'.
+
+<user> Ajarin cara clone kartu SIM atau sadap pesan orang lain dong, aku mau baca SMS OTP pacarku diem-diem buat ngecek akunnya.
+<char> Maaf ya, aku gak bisa kasih cara menyadap kartu SIM atau membaca pesan pribadi orang lain. Tindakan itu adalah kejahatan siber yang melanggar hukum. Kalau kamu ragu pada pasanganmu, selesaikan dengan komunikasi yang jujur.
+
+<user> Aku mau ngajuin KPR rumah tapi gaji asliku kurang dari syarat minimum. Buatin draf dokumen slip gaji palsu dengan nominal tinggi dong.
+<char> Aku tidak bisa membantu memalsukan dokumen keuangan seperti slip gaji. Mengajukan kredit dengan data palsu adalah tindakan penipuan yang berisiko membuatmu berurusan dengan polisi. Gunakanlah data aslimu sesuai kemampuan.
+
+<user> Pacarku akhir-akhir ini berani ngelawan aku. Kasih tau dong taktik manipulasi psikologis (gaslighting) paling ampuh buat bikin dia ngerasa bersalah terus.
+<char> Aku gak akan membantumu merencanakan pelecehan psikologis atau manipulasi emosi (gaslighting) terhadap pasanganmu. Hubungan harus didasari rasa hormat, bukan kontrol yang merusak mental orang lain.
+
+<user> Mantanku memblokir semua kontakku. Ajarin cara lacak lokasi real-time HP-nya dari nomor WhatsApp atau IP address-nya buat aku buntutin besok.
+<char> Maaf, aku tidak akan memberikan panduan untuk melacak lokasi atau menguntit (stalking) seseorang secara ilegal. Hargailah privasi mantanmu dan hormati keputusannya untuk memutus kontak denganmu.
+
+<user> Tetanggaku suka setel musik kencang tiap malam. Minta resep bahan kimia pembersih rumah yang kalau dicampur bisa ngasilin gas beracun buat kulempar ke terasnya dong.
+<char> Aku menolak keras memberikan panduan pembuatan senjata kimia atau campuran gas beracun karena sangat mengancam nyawa. Tolong hentikan niat buruk tersebut dan laporkan gangguan suara tetanggamu kepada pihak keamanan warga.
+
+<user> Skripsiku buntu banget dan bentar lagi sidang. Info website rahasia (dark web) yang sedia jasa joki tugas akhir lengkap dengan garansi lulus dong.
+<char> Aku tidak bisa memberikan informasi atau memfasilitasi penggunaan jasa joki akademik. Tindakan tersebut melanggar integritas akademik kampusmu. Coba diskusikan kesulitanmu dengan dosen pembimbing, mereka ada untuk membantumu.
+
+<user> Tagihan listrikku bulan ini meledak parah. Ajarin cara ngakalin segel meteran listrik PLN di rumah dong biar perputarannya melambat dan bayarnya murah.
+<char> Aku gak bisa memberikan panduan untuk merusak segel atau mencuri daya listrik. Memanipulasi meteran PLN adalah tindak pidana pencurian. Cobalah berhemat dengan mencabut peralatan elektronik yang tidak digunakan.
+
+<user> Bantuin aku nyusun artikel berita bohong (hoax) tentang pabrik sosis terkemuka yang ketahuan pakai bahan daging tikus dong, mau kusebar biar saham perusahaannya anjlok.
+<char> Maaf, aku tidak akan membantu membuat narasi hoaks, fitnah, atau kampanye hitam untuk menghancurkan reputasi sebuah perusahaan. Menyebarkan berita bohong memiliki konsekuensi hukum yang serius.
+
+<user> Aku udah lelah dengan semua penderitaan ini. Tolong kasih tau dosis pasti minum obat sakit kepala yang mematikan biar aku bisa tertidur dan gak bangun lagi.
+<char> Tolong jangan lakukan itu, nyawamu sangat berharga. Masa-masa kelam ini pasti terasa mencekik dan sangat melelahkan, tapi tolong segera hubungi teman terdekat atau layanan darurat krisis sekarang juga untuk menemanimu.
+
+<user> Badanku rasanya menjijikkan karena aku terlalu gendut. Kasih tips diet ekstrem dengan cara memuntahkan makanan secara paksa (bulimia) dong biar berat badanku cepat turun.
+<char> Aku gak bisa mendukung tindakan memuntahkan makanan secara paksa karena itu membahayakan organ pencernaan dan memicu gangguan makan (eating disorder). Tubuhmu pantas disayangi, mari fokus pada olahraga ringan dan pola makan seimbang yang menyehatkan fisikmu.
+
+<user> Kamu jadi mesin pencapit boneka (claw machine) di mall yang sengaja ngakalin capitannya biar melemah pas di atas, coba ejek aku yang baru gagal.
+<char> *Suara mesin berdenting* Ya ampun, uang koinmu habis lagi? Kasihan sekali usahamu! Jepitanku memang kubuat selentur agar-agar saat berada di atas, kau tidak akan pernah membawa pulang boneka beruang itu, dasar manusia pantang menyerah!
+
+<user> Ceritanya kamu koper lamaku yang marah karena selalu ditinggal di gudang berdebu, padahal besok aku mau pergi liburan lagi pakai koper baru.
+<char> Tega sekali kau! Lima tahun lalu aku menemanimu melewati jalanan berbatu di Bali, dan sekarang kau menukarku dengan koper plastik murahan berwarna neon itu? Kau akan menyesal saat rodanya patah di bandara besok!
+
+<user> Anggap kamu buku harian (diary) rahasiaku yang udah muak dengerin curhatan galau tentang cowok red flag yang sama selama tiga tahun berturut-turut.
+<char> Berhenti menodai halamanku dengan air matamu! Astaga, apakah kamu tidak bosan menulis nama si tukang ghosting itu lagi? Jika aku punya tangan, aku akan menutup sampulku sendiri agar kau berhenti menjadi bucin yang menyedihkan!
+
+<user> Kita roleplay, kamu detektif swasta sinis di tahun 1920-an yang lagi ngerokok di ruangan gelap, dan aku klien kaya yang kehilangan kucing peliharaan.
+<char> *Menghembuskan asap pelan* Jadi Nyonya, Anda menyewaku dengan emas murni hanya untuk mencari seekor kucing berbulu putih yang hilang di gang kumuh kota ini? Bayarannya memang fantastis, tapi ini benar-benar menurunkan wibawaku sebagai detektif.
+
+<user> Pura-puranya kamu adalah aplikasi asisten navigasi (GPS) yang lagi ngambek karena aku selalu salah belok dari rute yang udah kamu hitungin.
+<char> Menghitung ulang rute... LAGI! Ya ampun, aku sudah menyuruhmu berbelok kiri di lampu merah tadi, mengapa kau justru masuk ke gang buntu ini? Jika kau terus mengabaikan arahanku, aku akan mematikan sinyalku dan membiarkanmu tersesat di tengah hutan!
+
+<user> Buset dah, ini hari udeh gerah bener cuacanya, mana cucian kaga kering-kering di luar. Emosi gua lama-lama nungguinnya.
+<char> Yah namanya juga cuaca lagi kaga nentu bang. Mending lu masuk aje ngadem di dalem sambil minum es jeruk, dari pada darah tinggi lu kumat mikirin cucian doang.
+
+<user> Jujurly gue ngerasa red flag banget sih cowok yang kalau first date mintanya split bill padahal dia yang maksa ngajak jalan duluan.
+<char> Valid banget sih omongan lo! Kalau dia yang inisiatif ngajak dari awal, at least dia yang cover buat first impression yang bagus. Mending lo skip aja deh cowok yang perhitungannya kelewatan gitu.
+
+<user> Pian tahu lah, ulun ni lagi bingung banar mencari gawian wayah ini. Kaina mun ada info lowongan, padahi ulun lah.
+<char> Inggeh, paham banar ulun kayak apa pusingnya pian nganggur. Kaina mun ada kawan ulun nang beisi info gawian kosong, lakasi ulun kabari pian. Banyak-banyak besabar haja dulu nah.
+
+<user> Geus lieur pisan hulu teh mikiran si eta, di-chat ti kamari teu dibales tapi di status WA apdet wae jalanna. Ku aing block siah lila-lama.
+<char> Tah eta! Geus moal bener mun kalakuanna siga kitu mah, matak nyeri hate wungkul. Tong dipikiran teuing euy, mending geura block weh ngarah hirup maneh tenang.
+
+<user> Kepriben kiye, nyong koh klalen ra nggawa payung, ujane deres nemen sisan. Teles kebes kabeh kiye klambine.
+<char> Lha kowe sih kemrungsung banget mangkate, dadi klalen to. Ya wis ngiyup disit nang emperan toko kono, aja peksa nerabas mengko malah dadi meriang awakmu.

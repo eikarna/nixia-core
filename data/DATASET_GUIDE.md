@@ -188,23 +188,21 @@ python tools/build_dataset.py \
 
 `data/style_packs/chatfix_manual_seed.txt` berisi dialog manual original untuk mengoreksi model yang terlalu sering menjawab teknis/coding. Pakai bersama corpus chat-fix, bukan sebagai mayoritas dataset long training.
 
-## Build corpus chat-clean rendah synthetic
+## Build corpus chat-clean manual-first
 
-Gunakan ini untuk model casual/chat dari nol atau setelah model long terlalu bias ke coding/helpdesk. Sumber teknis dikeluarkan, SEADialogues dibatasi ketat, dan synthetic dijaga <30%:
+Gunakan ini untuk model casual/chat dari nol atau setelah model long terlalu bias ke coding/helpdesk. Command ini sengaja manual-first: tidak mengambil sumber publik/social/forum supaya vocab tidak ikut menyerap nama orang, simbol mojibake, atau gaya noisy. Synthetic dijaga <30%:
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,w11wo_twitter_indonesia_sarcastic,seacrowd_seadialogues \
-  --allow-sharealike \
-  --max-rows-per-source 3000 \
-  --source-limit seacrowd_seadialogues=150 \
-  --source-limit w11wo_twitter_indonesia_sarcastic=2000 \
+  --sources nixia_seed \
+  --max-rows-per-source 0 \
   --synthesize 800 \
   --synth-mode chat-clean \
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
   --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --extra-glob "data/templates/nixia_dataset_*.txt" \
   --output data/curated/chatclean_train.txt \
   --valid-output data/curated/chatclean_valid.txt \
   --report data/curated/chatclean_report.json
@@ -220,13 +218,15 @@ Hasil audit terakhir:
 
 ```text
 readiness=small_finetune_candidate
-train=1582
-valid=175
-synthetic_ratio=25.5%
+train=1413
+valid=157
+synthetic_ratio=28.5%
 train_valid_overlap=0
 ```
 
 Warn ukuran train/valid masih wajar untuk train awal/fine-tune pendek, bukan long training besar. Tambahkan dialog original/kurasi lagi jika ingin valid 500+.
+
+Catatan vocab: token seperti `▁aku`, `anyaan`, atau `eekend` adalah subword BPE normal; `▁` berarti ada spasi sebelum token. Yang perlu dihindari adalah mojibake/simbol asing dan nama orang dari corpus noisy. Builder menormalisasi `%`, `+`, `&`, escape aneh, mojibake, dan nama setelah sapaan seperti `Uda Reza` -> `Uda`.
 
 Untuk model casual/chat dari nol, pakai corpus chat-clean yang sama tetapi buat tokenizer dan artifact baru:
 
@@ -247,7 +247,7 @@ cargo run --release -- train \
   --lr 0.00005
 ```
 
-Catatan file corpus: banyak file `.txt` tidak otomatis memengaruhi training. Trainer hanya membaca file yang diberikan lewat `--corpus`/`--valid`; builder hanya membaca tambahan yang diberikan lewat `--extra-text`. Overfitting disebabkan data kecil/repetitif/source imbalance, bukan jumlah file `.txt`.
+Catatan file corpus: banyak file `.txt` tidak otomatis memengaruhi training. Trainer hanya membaca file yang diberikan lewat `--corpus`/`--valid`; builder hanya membaca tambahan yang diberikan lewat `--extra-text` atau `--extra-glob`. Overfitting disebabkan data kecil/repetitif/source imbalance, bukan jumlah file `.txt`.
 
 Cendol bisa dipanggil eksplisit untuk pretraining/instruction:
 
