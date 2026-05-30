@@ -97,7 +97,7 @@ fn add_current_pieces(
     }
 
     let mut pieces = piece_frequency.into_iter().collect::<Vec<_>>();
-    pieces.sort_by(|left, right| right.1.cmp(&left.1).then_with(|| left.0.cmp(&right.0)));
+    pieces.sort_by(|left, right| right.1.cmp(&left.1).then_with(|| left.0.cmp(right.0)));
 
     for (piece, _) in pieces {
         if vocab.len() >= vocab_size {
@@ -158,19 +158,19 @@ fn sort_tail_by_frequency(vocab: &mut [String], words: &[WordEntry]) {
         return;
     }
 
-    let mut frequency = HashMap::<String, usize>::new();
+    let mut frequency = HashMap::<&str, usize>::new();
     for word in words {
         for piece in &word.pieces {
-            *frequency.entry(piece.clone()).or_default() += word.count;
+            *frequency.entry(piece.as_str()).or_default() += word.count;
         }
     }
 
     vocab[special_len..].sort_by(|left, right| {
         frequency
-            .get(right)
+            .get(right.as_str())
             .copied()
             .unwrap_or_default()
-            .cmp(&frequency.get(left).copied().unwrap_or_default())
+            .cmp(&frequency.get(left.as_str()).copied().unwrap_or_default())
             .then_with(|| left.cmp(right))
     });
 }
