@@ -52,6 +52,14 @@ impl Vocabulary {
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
+        let path = path.as_ref();
+        if let Some(parent) = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+        {
+            fs::create_dir_all(parent)?;
+        }
+
         let mut contents = self.id_to_token.join("\n");
         contents.push('\n');
         fs::write(path, contents)?;
