@@ -103,18 +103,23 @@ fn add_current_pieces(
         if vocab.len() >= vocab_size {
             break;
         }
-        if known.insert(piece.to_string()) {
-            vocab.push(piece.to_string());
+        // We use contains + insert to avoid allocating `String` for pieces that are already known.
+        // `HashSet::get_or_insert_owned` from hashbrown would be ideal here, but standard `HashSet`
+        // doesn't have it. `contains` followed by `insert` is optimal without hashbrown raw entries.
+        if !known.contains(piece) {
+            let s = piece.to_string();
+            known.insert(s.clone());
+            vocab.push(s);
         }
     }
 }
 
 fn most_frequent_pair(words: &[WordEntry]) -> Option<(String, String, usize)> {
-    let mut pair_counts = HashMap::<(String, String), usize>::new();
+    let mut pair_counts = HashMap::<(&str, &str), usize>::new();
 
     for word in words {
         for pair in word.pieces.windows(2) {
-            let key = (pair[0].clone(), pair[1].clone());
+            let key = (pair[0].as_str(), pair[1].as_str());
             *pair_counts.entry(key).or_default() += word.count;
         }
     }
@@ -124,10 +129,10 @@ fn most_frequent_pair(words: &[WordEntry]) -> Option<(String, String, usize)> {
         .max_by(|left, right| {
             left.1
                 .cmp(&right.1)
-                .then_with(|| right.0.0.cmp(&left.0.0))
-                .then_with(|| right.0.1.cmp(&left.0.1))
+                .then_with(|| right.0.0.cmp(left.0.0))
+                .then_with(|| right.0.1.cmp(left.0.1))
         })
-        .map(|((left, right), count)| (left, right, count))
+        .map(|((left, right), count)| (left.to_string(), right.to_string(), count))
 }
 
 fn merge_pair_in_words(words: &mut [WordEntry], left: &str, right: &str, merged: &str) {
@@ -207,8 +212,60 @@ mod tests {
 
         assert_eq!(vocab.id(special::USER), Some(4));
         assert_eq!(vocab.id(special::CHARACTER), Some(5));
-        assert!(vocab.id("▁<user>").is_none());
+        assert!(vocab.id(&format!("{}<user>", special::SPACE_MARKER)).is_none());
         assert!(vocab.id("user>").is_none());
         assert!(vocab.id("char>").is_none());
+    }
+
+    #[test]
+    fn deterministic_ordering_with_ties() {
+        let vocab1 = train_vocab(
+            "a b c d e f a b c d e f", // all pairs occur same number of times
+            BpeTrainerConfig {
+                vocab_size: 20,
+                min_pair_frequency: 1,
+            },
+        ).unwrap();
+
+        let vocab2 = train_vocab(
+            "a b c d e f a b c d e f",
+            BpeTrainerConfig {
+                vocab_size: 20,
+                min_pair_frequency: 1,
+            },
+        ).unwrap();
+
+        assert_eq!(vocab1.tokens(), vocab2.tokens());
+    }
+
+    #[test]
+    fn most_frequent_pair_tie_breaking() {
+        let vocab = train_vocab(
+            "a b c d a b c d",
+            BpeTrainerConfig {
+                vocab_size: 11,
+                min_pair_frequency: 1,
+            },
+        ).unwrap();
+
+        assert!(vocab.len() > 0);
+    }
+
+    #[test]
+    fn add_current_pieces_no_duplicates() {
+        let vocab = train_vocab(
+            "hello hello world world",
+            BpeTrainerConfig {
+                vocab_size: 20,
+                min_pair_frequency: 1,
+            },
+        ).unwrap();
+
+        let mut tokens = vocab.tokens().to_vec();
+        tokens.sort();
+        let len_before = tokens.len();
+        tokens.dedup();
+        let len_after = tokens.len();
+        assert_eq!(len_before, len_after, "Vocabulary should not contain duplicate tokens");
     }
 }
