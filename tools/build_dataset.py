@@ -358,20 +358,30 @@ def normalize_license(value: str) -> str:
 
 def http_get_json(url: str, timeout: int) -> dict[str, Any]:
     request = Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except (HTTPError, URLError, TimeoutError) as error:
-        raise SystemExit(f"failed to fetch {url}: {error}") from error
+    max_retries = 8
+    for attempt in range(max_retries):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except (HTTPError, URLError, TimeoutError) as error:
+            if attempt == max_retries - 1:
+                raise SystemExit(f"failed to fetch {url}: {error}") from error
+            print(f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})", file=sys.stderr)
+            time.sleep(2 ** attempt)
 
 
 def http_get_text(url: str, timeout: int) -> str:
     request = Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            return response.read().decode("utf-8")
-    except (HTTPError, URLError, TimeoutError) as error:
-        raise SystemExit(f"failed to fetch {url}: {error}") from error
+    max_retries = 8
+    for attempt in range(max_retries):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return response.read().decode("utf-8")
+        except (HTTPError, URLError, TimeoutError) as error:
+            if attempt == max_retries - 1:
+                raise SystemExit(f"failed to fetch {url}: {error}") from error
+            print(f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})", file=sys.stderr)
+            time.sleep(2 ** attempt)
 
 
 def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespace) -> Iterable[dict[str, Any]]:
