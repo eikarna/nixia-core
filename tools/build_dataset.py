@@ -273,7 +273,7 @@ def extra_text_paths(root: Path, args: argparse.Namespace) -> list[Path]:
             raise SystemExit(f"refusing unsafe --extra-glob pattern: {pattern}")
         matches = sorted(path for path in root.glob(pattern) if path.is_file())
         if not matches:
-            raise SystemExit(f"--extra-glob matched no files: {pattern}")
+            print(f"--extra-glob matched no files: {pattern}", file=sys.stderr)
         paths.extend(resolve_under_root(root, str(path)) for path in matches)
 
     deduped = []
@@ -358,20 +358,30 @@ def normalize_license(value: str) -> str:
 
 def http_get_json(url: str, timeout: int) -> dict[str, Any]:
     request = Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except (HTTPError, URLError, TimeoutError) as error:
-        raise SystemExit(f"failed to fetch {url}: {error}") from error
+    max_retries = 8
+    for attempt in range(max_retries):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except (HTTPError, URLError, TimeoutError) as error:
+            if attempt == max_retries - 1:
+                raise SystemExit(f"failed to fetch {url}: {error}") from error
+            print(f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})", file=sys.stderr)
+            time.sleep(2 ** attempt)
 
 
 def http_get_text(url: str, timeout: int) -> str:
     request = Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            return response.read().decode("utf-8")
-    except (HTTPError, URLError, TimeoutError) as error:
-        raise SystemExit(f"failed to fetch {url}: {error}") from error
+    max_retries = 8
+    for attempt in range(max_retries):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return response.read().decode("utf-8")
+        except (HTTPError, URLError, TimeoutError) as error:
+            if attempt == max_retries - 1:
+                raise SystemExit(f"failed to fetch {url}: {error}") from error
+            print(f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})", file=sys.stderr)
+            time.sleep(2 ** attempt)
 
 
 def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespace) -> Iterable[dict[str, Any]]:
