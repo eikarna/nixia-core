@@ -4,10 +4,19 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-burn = { version = "~0.21", default-features = false, features = ["std", "train", "flex"] }
+burn = { version = "~0.21", default-features = false, features = ["std", "train", "flex", "ndarray"] }
 
 [features]
 default = []
 wgpu-backend = ["burn/wgpu"]
 cuda-backend = ["burn/cuda"]
 rocm-backend = ["burn/rocm"]
+
+[dev-dependencies]
+criterion = "0.8.2"
+[[bench]]
+name = "lm_forward"
+harness = false
+[[bench]]
+name = "lm_forward_seq1"
+harness = false

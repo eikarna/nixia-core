@@ -49,12 +49,13 @@ impl DecoderBlockConfig {
 }
 
 impl<B: Backend> DecoderBlock<B> {
-    pub fn forward(&self, x: Tensor<B, 3>, causal_mask: Tensor<B, 3, Bool>) -> Tensor<B, 3> {
+    pub fn forward(&self, x: Tensor<B, 3>, causal_mask: Option<Tensor<B, 3, Bool>>) -> Tensor<B, 3> {
         let attn_input = self.norm_attn.forward(x.clone());
-        let attn = self
-            .self_attn
-            .forward(MhaInput::self_attn(attn_input).mask_attn(causal_mask))
-            .context;
+        let mut mha_input = MhaInput::self_attn(attn_input);
+        if let Some(mask) = causal_mask {
+            mha_input = mha_input.mask_attn(mask);
+        }
+        let attn = self.self_attn.forward(mha_input).context;
         let x = x + self.dropout.forward(attn);
 
         let ff = self.feed_forward.forward(self.norm_ff.forward(x.clone()));

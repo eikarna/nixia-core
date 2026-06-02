@@ -96,10 +96,20 @@ impl<B: Backend> TinyLm<B> {
         let token_embed = self.token_embedding.forward(token_ids);
         let pos_embed = self.position_embedding.forward(pos_ids);
         let mut x = self.dropout.forward(token_embed + pos_embed);
-        let causal_mask = generate_autoregressive_mask::<B>(batch_size, seq_len, &device);
+        let mut mask_opt = if seq_len > 1 {
+            Some(generate_autoregressive_mask::<B>(batch_size, seq_len, &device))
+        } else {
+            None
+        };
+        let last_idx = self.blocks.len().saturating_sub(1);
 
-        for block in self.blocks.iter() {
-            x = block.forward(x, causal_mask.clone());
+        for (i, block) in self.blocks.iter().enumerate() {
+            let mask = if i == last_idx {
+                mask_opt.take()
+            } else {
+                mask_opt.as_ref().map(|m| m.clone())
+            };
+            x = block.forward(x, mask);
         }
 
         self.output_projection(self.norm.forward(x))
