@@ -1,7 +1,7 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use nixia::model::{TinyLmConfig, TinyLm};
-use burn::tensor::Tensor;
 use burn::backend::ndarray::NdArrayDevice;
+use burn::tensor::Tensor;
+use criterion::{Criterion, criterion_group, criterion_main};
+use nixia::model::{TinyLm, TinyLmConfig};
 
 fn bench_lm_forward(c: &mut Criterion) {
     type Backend = burn::backend::NdArray;

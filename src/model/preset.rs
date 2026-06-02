@@ -3,6 +3,7 @@ use super::TinyLmConfig;
 pub const DEV_SMOKE: &str = "dev-smoke";
 pub const NIXIA_MICRO: &str = "nixia-micro";
 pub const NIXIA_TINY: &str = "nixia-tiny";
+pub const NIXIA_CODER: &str = "nixia-coder";
 
 pub fn preset(name: &str, vocab_size: usize, pad_token_id: usize) -> Option<TinyLmConfig> {
     match name {
@@ -36,10 +37,21 @@ pub fn preset(name: &str, vocab_size: usize, pad_token_id: usize) -> Option<Tiny
             dropout: 0.1,
             pad_token_id,
         }),
+
+        NIXIA_CODER => Some(TinyLmConfig {
+            vocab_size,
+            max_seq_len: 2048,
+            d_model: 2048,
+            n_layers: 18,
+            n_heads: 16,
+            d_ff: 8192,
+            dropout: 0.1,
+            pad_token_id,
+        }),
         _ => None,
     }
 }
 
 pub fn names() -> &'static [&'static str] {
-    &[DEV_SMOKE, NIXIA_MICRO, NIXIA_TINY]
+    &[DEV_SMOKE, NIXIA_MICRO, NIXIA_TINY, NIXIA_CODER]
 }

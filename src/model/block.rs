@@ -49,7 +49,11 @@ impl DecoderBlockConfig {
 }
 
 impl<B: Backend> DecoderBlock<B> {
-    pub fn forward(&self, x: Tensor<B, 3>, causal_mask: Option<Tensor<B, 3, Bool>>) -> Tensor<B, 3> {
+    pub fn forward(
+        &self,
+        x: Tensor<B, 3>,
+        causal_mask: Option<Tensor<B, 3, Bool>>,
+    ) -> Tensor<B, 3> {
         let attn_input = self.norm_attn.forward(x.clone());
         let mut mha_input = MhaInput::self_attn(attn_input);
         if let Some(mask) = causal_mask {

@@ -1,6 +1,6 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use nixia::model::{TinyLmConfig, TinyLm};
 use burn::tensor::Tensor;
+use criterion::{Criterion, criterion_group, criterion_main};
+use nixia::model::{TinyLm, TinyLmConfig};
 
 fn bench_lm_forward(c: &mut Criterion) {
     type Backend = burn::backend::NdArray;
@@ -18,10 +18,7 @@ fn bench_lm_forward(c: &mut Criterion) {
     };
 
     let model: TinyLm<Backend> = config.init(&device);
-    let token_ids = Tensor::<Backend, 2, burn::tensor::Int>::from_data(
-        [[1]],
-        &device,
-    );
+    let token_ids = Tensor::<Backend, 2, burn::tensor::Int>::from_data([[1]], &device);
 
     c.bench_function("lm_forward_seq1", |b| {
         b.iter(|| model.forward(token_ids.clone()))

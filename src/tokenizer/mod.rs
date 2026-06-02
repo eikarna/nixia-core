@@ -61,11 +61,11 @@ impl TinyTokenizer {
         }
 
         for word in normalized.split_whitespace() {
-            if special::is_reserved(word) {
-                if let Some(id) = self.vocab.id(word) {
-                    ids.push(id);
-                    continue;
-                }
+            if special::is_reserved(word)
+                && let Some(id) = self.vocab.id(word)
+            {
+                ids.push(id);
+                continue;
             }
 
             let remaining = format!("{}{}", special::SPACE_MARKER, word);

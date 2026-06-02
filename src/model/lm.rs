@@ -54,7 +54,7 @@ pub struct TinyLm<B: Backend> {
 impl TinyLmConfig {
     pub fn init<B: Backend>(&self, device: &B::Device) -> TinyLm<B> {
         assert!(
-            self.d_model % self.n_heads == 0,
+            self.d_model.is_multiple_of(self.n_heads),
             "d_model must be divisible by n_heads"
         );
 
@@ -97,7 +97,9 @@ impl<B: Backend> TinyLm<B> {
         let pos_embed = self.position_embedding.forward(pos_ids);
         let mut x = self.dropout.forward(token_embed + pos_embed);
         let mut mask_opt = if seq_len > 1 {
-            Some(generate_autoregressive_mask::<B>(batch_size, seq_len, &device))
+            Some(generate_autoregressive_mask::<B>(
+                batch_size, seq_len, &device,
+            ))
         } else {
             None
         };
@@ -107,7 +109,7 @@ impl<B: Backend> TinyLm<B> {
             let mask = if i == last_idx {
                 mask_opt.take()
             } else {
-                mask_opt.as_ref().map(|m| m.clone())
+                mask_opt.clone()
             };
             x = block.forward(x, mask);
         }
