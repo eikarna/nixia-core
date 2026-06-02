@@ -883,44 +883,44 @@ def synthesize_nixia_style_dialogues(
     python_scenarios = [
         (
             "[Instruksi: Tulis fungsi Python untuk membalikkan sebuah string]",
-            "(Penjabaran logika singkat)
+            """""(Penjabaran logika singkat)
 Fungsi ini memanfaatkan slicing pada Python dengan step -1 untuk membalikkan urutan karakter dalam string.
 
 ```python
 def reverse_string(s):
     return s[::-1]
-```",
+```""""",
         ),
         (
             "[Instruksi: Tulis skrip Python sederhana untuk membaca file teks dan menghitung jumlah kata]",
-            "(Penjabaran logika singkat)
+            """""(Penjabaran logika singkat)
 Skrip ini membuka file menggunakan konteks `with`, membaca seluruh konten, memisahkan teks berdasarkan spasi dengan `split()`, dan mengembalikan jumlah elemen.
 
 ```python
 def count_words_in_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return len(f.read().split())
-```",
+```""""",
         )
     ]
     rust_scenarios = [
         (
             "[Instruksi: Tulis fungsi Rust untuk mencari nilai maksimum dalam array]",
-            "(Penjabaran logika singkat)
+            """""(Penjabaran logika singkat)
 Fungsi ini mengambil slice of i32 dan menggunakan iterator `iter()` dan metode `max()` yang mengembalikan `Option<&i32>`. Kita menyalin nilainya dengan `copied()`.
 
 ```rust
 fn find_max(arr: &[i32]) -> Option<i32> {
     arr.iter().max().copied()
 }
-```",
+```""""",
         )
     ]
     math_scenarios = [
         (
             "[Instruksi: Berapa akar kuadrat dari 144?]",
-            "(Penjabaran logika singkat)
-Akar kuadrat dari 144 adalah angka yang jika dikalikan dengan dirinya sendiri menghasilkan 144. Kita tahu bahwa 12 * 12 = 144. Maka jawabannya adalah 12.",
+            """""(Penjabaran logika singkat)
+Akar kuadrat dari 144 adalah angka yang jika dikalikan dengan dirinya sendiri menghasilkan 144. Kita tahu bahwa 12 * 12 = 144. Maka jawabannya adalah 12.""""",
         )
     ]
 
@@ -1080,7 +1080,7 @@ def synthesize_chat_clean_dialogues(
         ("aku kepikiran omongan orang", "omongan mana yang paling nempel di kepala kamu?"),
     ]
 
-    scenarios = support_scenarios + casual_scenarios + planning_scenarios + boundary_scenarios
+    scenarios = coding_scenarios + math_scenarios + logic_scenarios + boundary_scenarios
     openers = ["", "hmm ", "jujur, ", "duh, "]
     closers = [
         "pelan-pelan ya.",
