@@ -255,7 +255,7 @@ mod tests {
         )
         .unwrap();
 
-        assert!(vocab.len() > 0);
+        assert!(!vocab.is_empty());
     }
 
     #[test]

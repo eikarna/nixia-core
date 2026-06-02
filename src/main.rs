@@ -431,21 +431,6 @@ fn parse_f64(value: &str) -> Result<f64> {
     })
 }
 
-#[cfg(test)]
-mod tests {
-    use super::{TrainBackend, parse_backend};
-
-    #[test]
-    fn parses_train_backend_aliases() {
-        assert_eq!(parse_backend("flex").unwrap(), TrainBackend::Flex);
-        assert_eq!(parse_backend("cpu").unwrap(), TrainBackend::Flex);
-        assert_eq!(parse_backend("gpu").unwrap(), TrainBackend::Wgpu);
-        assert_eq!(parse_backend("nvidia").unwrap(), TrainBackend::Cuda);
-        assert_eq!(parse_backend("amd").unwrap(), TrainBackend::Rocm);
-        assert!(parse_backend("metal").is_err());
-    }
-}
-
 fn print_help() {
     println!(
         "nixia - tiny Indonesian causal language model\n\n\
@@ -461,4 +446,18 @@ Presets: dev-smoke, nixia-micro, nixia-tiny\n\
 Training backends: flex (default), wgpu, cuda, rocm. GPU backends require matching Cargo features.\n\
 Use --init-from for fine-tuning compatible model weights, or --resume-epoch to continue an existing checkpoint."
     );
+}
+#[cfg(test)]
+mod tests {
+    use super::{TrainBackend, parse_backend};
+
+    #[test]
+    fn parses_train_backend_aliases() {
+        assert_eq!(parse_backend("flex").unwrap(), TrainBackend::Flex);
+        assert_eq!(parse_backend("cpu").unwrap(), TrainBackend::Flex);
+        assert_eq!(parse_backend("gpu").unwrap(), TrainBackend::Wgpu);
+        assert_eq!(parse_backend("nvidia").unwrap(), TrainBackend::Cuda);
+        assert_eq!(parse_backend("amd").unwrap(), TrainBackend::Rocm);
+        assert!(parse_backend("metal").is_err());
+    }
 }

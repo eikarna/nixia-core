@@ -78,12 +78,9 @@ python tools/build_dataset.py \
 
 Target batch manual yang disarankan:
 
-- 40% curhat/emotional support,
-- 20% obrolan santai/gabut,
-- 15% tanya balik dan follow-up konteks,
-- 10% roleplay ringan,
-- 10% batas aman/menolak hal berbahaya secara halus,
-- 5% dialek/slang lokal jika memang ingin style pack.
+- 60% instruksi teknis dan coding,
+- 30% logika dan matematika langkah demi langkah (step-by-step reasoning),
+- 10% roleplay assistant coder dan batas aman.
 
 Untuk validation set, pilih contoh yang mirip kasus nyata tetapi **jangan** duplikat dari train. Valid set adalah ujian, bukan bahan belajar.
 
@@ -117,14 +114,14 @@ Contoh memakai sumber social-style Apache-2.0 yang sudah ada di manifest tetapi 
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed,lorthgyu_indonesian_chat,w11wo_twitter_indonesia_sarcastic \
-  --max-rows-per-source 1000 \
-  --synthesize 500
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
+  --max-rows-per-source 5000 \
+  --synthesize 0
 
 python tools/audit_dataset.py
 ```
 
-Kalau hasil audit menunjukkan template repetition tinggi atau banyak contoh politis/toxic, jangan fine-tune dulu; tambah curated manual yang lebih natural.
+Kalau hasil audit menunjukkan template repetition tinggi, perbaiki prompt template di `tools/build_dataset.py` atau perbanyak referensi manual.
 
 ## Build kandidat long training
 
@@ -132,11 +129,10 @@ Command berikut menghasilkan corpus yang lulus audit awal untuk long training lo
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,suryaadhi_ppmb_qa_id,w11wo_twitter_indonesia_sarcastic,gabrielb_python_qa,seacrowd_seadialogues \
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
   --allow-sharealike \
   --max-rows-per-source 6000 \
-  --source-limit seacrowd_seadialogues=1200 \
-  --synthesize 1500 \
+    --synthesize 1500 \
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline
@@ -186,22 +182,21 @@ python tools/build_dataset.py \
 <char> aku lagi santai nih hehe. kamu sendiri gimana?
 ```
 
-`data/style_packs/chatfix_manual_seed.txt` berisi dialog manual original untuk mengoreksi model yang terlalu sering menjawab teknis/coding. Pakai bersama corpus chat-fix, bukan sebagai mayoritas dataset long training.
+`data/templates/nixia_coder_001.txt` berisi dialog manual original untuk memandu model menjawab secara teknis dan logis. Lihat `NIXIA_CODER_RUBRIC.md` untuk pedoman pembuatan dataset manual baru.
 
 ## Build corpus chat-clean manual-first
 
-Gunakan ini untuk model casual/chat dari nol atau setelah model long terlalu bias ke coding/helpdesk. Command ini sengaja manual-first: tidak mengambil sumber publik/social/forum supaya vocab tidak ikut menyerap nama orang, simbol mojibake, atau gaya noisy. Synthetic dijaga <30%:
+Gunakan rubrik NIXIA_CODER_RUBRIC.md untuk membuat instruksi coding. Command berikut mensintesis soal-soal pemrograman dan digabung dengan data manual. Synthetic bisa diset 0 jika kita ingin full kontrol:
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed \
-  --max-rows-per-source 0 \
-  --synthesize 800 \
-  --synth-mode chat-clean \
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
+  --max-rows-per-source 5000 \
+  --synthesize 0 \
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
-  --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --extra-text data/templates/nixia_coder_001.txt \
   --extra-glob "data/templates/nixia_dataset_*.txt" \
   --output data/curated/chatclean_train.txt \
   --valid-output data/curated/chatclean_valid.txt \

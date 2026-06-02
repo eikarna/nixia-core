@@ -165,8 +165,8 @@ mod tests {
             special::NEWLINE.into(),
             special::URL.into(),
             special::NUM.into(),
-            format!("{}aku", special::SPACE_MARKER).into(),
-            format!("{}makan", special::SPACE_MARKER).into(),
+            format!("{}aku", special::SPACE_MARKER),
+            format!("{}makan", special::SPACE_MARKER),
         ])
         .unwrap();
         let tokenizer = TinyTokenizer::new(vocab).unwrap();
@@ -187,12 +187,12 @@ mod tests {
             special::NEWLINE.into(),
             special::URL.into(),
             special::NUM.into(),
-            format!("{}iyaa,", special::SPACE_MARKER).into(),
+            format!("{}iyaa,", special::SPACE_MARKER),
             "aku".into(),
-            format!("{}aku", special::SPACE_MARKER).into(),
+            format!("{}aku", special::SPACE_MARKER),
             "di".into(),
-            format!("{}di", special::SPACE_MARKER).into(),
-            format!("{}sini", special::SPACE_MARKER).into(),
+            format!("{}di", special::SPACE_MARKER),
+            format!("{}sini", special::SPACE_MARKER),
         ])
         .unwrap();
         let tokenizer = TinyTokenizer::new(vocab).unwrap();

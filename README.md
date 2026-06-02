@@ -1,6 +1,6 @@
-# Nixia
+# Nixia - Indonesian Logic, Math, and Programming Engine
 
-Nixia adalah proyek awal tiny causal language model Bahasa Indonesia menggunakan Rust dan Burn.
+Nixia adalah proyek awal tiny causal language model Bahasa Indonesia menggunakan Rust dan Burn. Model ini difokuskan sebagai "Logic, Math, and Programming Engine", ditujukan secara spesifik untuk penalaran algoritmis dan pemrograman.
 Target desainnya adalah model kecil untuk eksperimen on-device, terutama perangkat Android low-end seperti Xiaomi Redmi 4X.
 
 ## Isi proyek
@@ -48,7 +48,7 @@ Notebook Kaggle/Colab tersedia di `notebooks/nixia_train_gpu.ipynb`.
 cargo run -- tokenizer --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --vocab-size 8000
 cargo run -- train --preset dev-smoke --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run --epochs 1 --batch-size 2
 cargo run -- eval --corpus data/sample_corpus.txt --vocab artifacts/vocab.txt --artifacts artifacts/run
-cargo run -- generate --chat --artifacts artifacts/run --vocab artifacts/vocab.txt --prompt "halo, kamu siapa?" --tokens 40
+cargo run -- generate --chat --artifacts artifacts/run --vocab artifacts/vocab.txt --prompt "bagaimana cara mendeklarasikan variabel mutable di rust?" --tokens 40
 ```
 
 Sample corpus hanya untuk smoke test, bukan untuk menghasilkan model bagus.
@@ -150,7 +150,7 @@ Melihat ringkasan/filter dataset manual tanpa menulis file:
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed \
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
   --max-rows-per-source 0 \
   --synthesize 0 \
   --min-score 0.8 \
@@ -180,14 +180,14 @@ Build corpus bersih dari semua dataset manual. Command ini sengaja tidak mengamb
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed \
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
   --max-rows-per-source 0 \
   --synthesize 800 \
-  --synth-mode chat-clean \
+
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
-  --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --extra-text data/templates/nixia_coder_001.txt \
   --extra-glob "data/templates/nixia_dataset_*.txt" \
   --output data/curated/chatclean_train.txt \
   --valid-output data/curated/chatclean_valid.txt \
@@ -211,7 +211,7 @@ rasio synthetic, dan repetisi template respons.
 
 Sumber dataset dan catatan lisensi ada di `data/DATASET_GUIDE.md` dan `data/dataset_sources.json`.
 Gunakan `--allow-sharealike` hanya jika kamu siap mengikuti kewajiban atribusi/ShareAlike.
-Base corpus sengaja netral-kasual; slang/dialek berat sebaiknya masuk style pack atau fine-tuning persona terpisah supaya persona tidak bocor dan tidak context rot.
+Base corpus difokuskan pada penalaran logis, matematika, dan pemrograman. Data kasual atau slang sangat dibatasi agar kemampuan algoritmis model tidak terganggu.
 
 Tambahkan corpus/style pack lokal tanpa mengubah manifest dengan `--extra-text`:
 
@@ -219,17 +219,17 @@ Tambahkan corpus/style pack lokal tanpa mengubah manifest dengan `--extra-text`:
 python tools/build_dataset.py --max-rows-per-source 1000 --synthesize 3000 --extra-text data/style_packs/local_flavor_sample.txt
 ```
 
-Corpus koreksi gaya chat manual tersedia di `data/style_packs/chatfix_manual_seed.txt`. Ini original/project-local dan bisa dipakai untuk fine-tune pendek saat model terlalu sering menjawab seperti coding/helpdesk assistant.
+Corpus referensi coder tersedia di `data/templates/nixia_coder_001.txt`. Ini original/project-local dan bisa dipakai sebagai contoh standar untuk fine-tune pendek agar konsisten dalam menjawab instruksi logika/koding.
 
 Untuk data buatan/kurasi sendiri, copy `data/templates/manual_batch_template.txt` ke
 `data/private/manual_batch_001.txt`, isi dan anonimisasi, lalu build dengan `--extra-text`.
 Folder `data/private/` dan `data/raw/` sengaja tidak masuk Git.
 
-Untuk gaya sosial media, jangan scrape TikTok/X/Facebook langsung kecuali kamu punya izin/lisensi yang jelas.
+Untuk data teknis, utamakan dataset instruksional dan dokumentasi teknis dengan lisensi yang jelas.
 Gunakan sumber publik yang lisensinya kompatibel dan tetap disabled-by-default, misalnya:
 
 ```bash
-python tools/build_dataset.py --sources nixia_seed,lorthgyu_indonesian_chat,w11wo_twitter_indonesia_sarcastic --max-rows-per-source 1000 --synthesize 500
+python tools/build_dataset.py --sources sahil2801_codealpaca,gabrielb_python_qa --max-rows-per-source 5000 --synthesize 0
 ```
 
 Setelah itu wajib jalankan `python tools/audit_dataset.py` dan spot-check manual.
@@ -238,10 +238,10 @@ Dataset kandidat untuk long training lokal bisa dibuat dengan mix lebih besar be
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed,lorthgyu_indonesian_chat,lorthgyu_indonesian_qa,suryaadhi_ppmb_qa_id,w11wo_twitter_indonesia_sarcastic,gabrielb_python_qa,seacrowd_seadialogues \
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
   --allow-sharealike \
   --max-rows-per-source 6000 \
-  --source-limit seacrowd_seadialogues=1200 \
+
   --synthesize 1500 \
   --valid-ratio 0.1 \
   --min-score 0.8 \
@@ -252,18 +252,18 @@ python tools/audit_dataset.py
 
 Catatan: command ini memasukkan sumber CC-BY-SA, jadi distribusi dataset/model turunan mungkin punya kewajiban atribusi/ShareAlike. Untuk penggunaan privat lokal, tetap simpan report lisensi.
 
-Untuk chat-clean/chat-fix dari nol, pakai manual-first corpus, synthetic rendah, dan tokenizer baru. Ini lebih bersih daripada mencampur social/forum/public QA saat dataset manual masih kecil:
+Untuk training coder dari nol, gunakan corpus spesifik koding dan logika dengan tingkat presisi tinggi. Hindari mencampur dataset kasual atau sosial:
 
 ```bash
 python tools/build_dataset.py \
-  --sources nixia_seed \
+  --sources sahil2801_codealpaca,gabrielb_python_qa \
   --max-rows-per-source 0 \
   --synthesize 800 \
-  --synth-mode chat-clean \
+
   --valid-ratio 0.1 \
   --min-score 0.8 \
   --offline \
-  --extra-text data/style_packs/chatfix_manual_seed.txt \
+  --extra-text data/templates/nixia_coder_001.txt \
   --extra-glob "data/templates/nixia_dataset_*.txt" \
   --output data/curated/chatclean_train.txt \
   --valid-output data/curated/chatclean_valid.txt \
@@ -303,7 +303,7 @@ cargo run --release -- train \
   --lr 0.00001
 ```
 
-Untuk model casual/chat dari nol, lebih baik train dari corpus chat-clean dan tokenizer baru:
+Untuk model logika/coding dari nol, lebih baik train dari corpus spesifik coder dan tokenizer baru:
 
 ```bash
 cargo run --release -- tokenizer \
@@ -418,7 +418,7 @@ cargo run --release -- generate ^
   --chat ^
   --artifacts artifacts/nixia-micro-long ^
   --vocab artifacts/vocab-long.txt ^
-  --prompt "aku capek banget hari ini, rasanya pengen tidur tapi pikiran rame" ^
+  --prompt "tuliskan fungsi python untuk menghitung bilangan prima dari 1 hingga n" ^
   --tokens 64 ^
   --temperature 0.8 ^
   --top-k 30 ^
@@ -429,8 +429,8 @@ cargo run --release -- generate ^
 Contoh prompt lain:
 
 ```bat
-cargo run --release -- generate --chat --artifacts artifacts/nixia-micro-long --vocab artifacts/vocab-long.txt --prompt "halo, kamu siapa?" --tokens 64
-cargo run --release -- generate --chat --artifacts artifacts/nixia-micro-long --vocab artifacts/vocab-long.txt --prompt "temenin aku diem dulu boleh?" --tokens 64
+cargo run --release -- generate --chat --artifacts artifacts/nixia-micro-long --vocab artifacts/vocab-long.txt --prompt "bagaimana cara mendeklarasikan variabel mutable di rust?" --tokens 64
+cargo run --release -- generate --chat --artifacts artifacts/nixia-micro-long --vocab artifacts/vocab-long.txt --prompt "apa perbedaan antara TCP dan UDP?" --tokens 64
 ```
 
 Tanda training layak diteruskan: valid loss turun/stabil, prompt eval makin natural, dan output tidak makin repetitif. Stop atau turunkan LR kalau train loss turun tetapi valid loss naik.
