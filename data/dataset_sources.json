@@ -5,7 +5,7 @@
   "sources": [
     {
       "id": "nixia_seed",
-      "enabled": true,
+      "enabled": false,
       "type": "local_text",
       "path": "data/sample_corpus.txt",
       "adapter": "nixia_text",
@@ -16,7 +16,7 @@
     },
     {
       "id": "lorthgyu_indonesian_chat",
-      "enabled": true,
+      "enabled": false,
       "type": "hf_raw_jsonl",
       "repo": "LorthGyu/indonesian-chat",
       "file": "data/train.jsonl",
@@ -33,8 +33,12 @@
       "repo": "LorthGyu/indonesian-qa",
       "file": "data/train.jsonl",
       "adapter": "qa_pair",
-      "question_fields": ["question"],
-      "answer_fields": ["answer"],
+      "question_fields": [
+        "question"
+      ],
+      "answer_fields": [
+        "answer"
+      ],
       "license": "mit",
       "license_class": "permissive",
       "use": "general_qa_small",
@@ -47,7 +51,9 @@
       "repo": "w11wo/twitter_indonesia_sarcastic",
       "file": "data/train.csv",
       "adapter": "hf_social_post",
-      "text_fields": ["tweet"],
+      "text_fields": [
+        "tweet"
+      ],
       "license": "apache-2.0",
       "license_class": "permissive",
       "use": "social_style_seed",
@@ -71,8 +77,12 @@
       "repo": "suryaadhi/ppmb-qa-dataset",
       "file": "ppmb-qa-id.jsonl",
       "adapter": "qa_pair",
-      "question_fields": ["query"],
-      "answer_fields": ["answer"],
+      "question_fields": [
+        "query"
+      ],
+      "answer_fields": [
+        "answer"
+      ],
       "license": "mit",
       "license_class": "permissive",
       "use": "helpdesk_qa",
@@ -80,7 +90,7 @@
     },
     {
       "id": "gabrielb_python_qa",
-      "enabled": false,
+      "enabled": true,
       "type": "hf_raw_csv",
       "repo": "gabrielb/QA-Python-Programming-Indonesia",
       "file": "original_dataset.csv",
@@ -102,7 +112,12 @@
       "license_class": "permissive",
       "use": "instruction_chat",
       "quality": "12.8M Indonesian instruction/chat rows; bagus untuk pretraining/instruction, tetapi tidak default untuk corpus chat kasual karena banyak row ensiklopedis/task non-chat",
-      "start_offsets": [0, 6000000, 9000000, 12000000],
+      "start_offsets": [
+        0,
+        6000000,
+        9000000,
+        12000000
+      ],
       "exclude_subset_contains": [
         "puisi",
         "topic",
@@ -116,7 +131,7 @@
     },
     {
       "id": "seacrowd_seadialogues",
-      "enabled": true,
+      "enabled": false,
       "type": "hf_rows",
       "repo": "SEACrowd/SEADialogues",
       "config": "default",
@@ -126,7 +141,12 @@
       "license_class": "sharealike",
       "use": "chat_cultural",
       "quality": "8K culturally grounded multi-turn SEA conversations; include with --allow-sharealike",
-      "lang_allow": ["ind", "jav", "sun", "min"],
+      "lang_allow": [
+        "ind",
+        "jav",
+        "sun",
+        "min"
+      ],
       "dialogue_fields": [
         "generated_convo_gemini15flash",
         "generated_convo_gpt4omini"
@@ -157,6 +177,19 @@
       "license_class": "noncommercial",
       "use": "roleplay",
       "quality": "roleplay Indonesian dataset; skip by default because non-commercial/share-alike"
+    },
+    {
+      "id": "sahil2801_codealpaca",
+      "enabled": true,
+      "type": "hf_rows",
+      "repo": "sahil2801/CodeAlpaca-20k",
+      "config": "default",
+      "split": "train",
+      "adapter": "hf_input_output",
+      "license": "apache-2.0",
+      "license_class": "permissive",
+      "use": "instruction_chat",
+      "quality": "20K rows of code generation tasks from Alpaca"
     }
   ]
 }

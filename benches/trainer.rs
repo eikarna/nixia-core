@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use nixia::tokenizer::trainer::{BpeTrainerConfig, train_vocab};
 use std::fs;
 
@@ -13,7 +13,12 @@ fn bench_train(c: &mut Criterion) {
     };
 
     c.bench_function("train_vocab", |b| {
-        b.iter(|| train_vocab(std::hint::black_box(&corpus), std::hint::black_box(config.clone())))
+        b.iter(|| {
+            train_vocab(
+                std::hint::black_box(&corpus),
+                std::hint::black_box(config.clone()),
+            )
+        })
     });
 }
 

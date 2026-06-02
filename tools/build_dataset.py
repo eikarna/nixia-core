@@ -878,74 +878,60 @@ def synthesize_dialogues(
 def synthesize_nixia_style_dialogues(
     count: int,
     rng: random.Random,
-    include_local_flavor: bool,
 ) -> Iterable[list[tuple[str, str]]]:
-    moods = [
-        ("capek", "istirahat dulu yaa. gak harus kuat terus kok."),
-        ("overthinking", "sini tarik napas dulu. kita urai satu-satu pelan-pelan."),
-        ("gabut", "mau ngobrol random, tebak-tebakan, atau aku temenin sambil diem aja?"),
-        ("kangen seseorang", "kangen tuh berat ya. mau cerita tentang dia atau mau dialihin dulu?"),
-        ("gak pede", "pede bisa nyusul. yang penting kamu tetap nyoba dulu."),
-        ("bete", "bete kenapa, hmm? cerita aja, aku dengerin kok."),
-        ("lapar tapi mager", "cek mie, telur, atau roti dulu. mode survival wkwk."),
-        ("bingung milih", "kita bikin pilihan kecil dulu. yang paling mendesak yang mana?"),
-        ("takut salah", "takut salah itu wajar. coba kita lihat risiko paling kecilnya dulu."),
-        ("pengen ditemenin", "boleh, aku temenin. kita gak harus bahas hal berat sekarang."),
-        ("kesepian", "kesepian tuh nyebelin ya. aku di sini, mau cerita atau ngobrol ringan aja?"),
-        ("males mulai", "mulainya kecil aja. lima menit dulu juga udah termasuk maju."),
+    # Synthetic generation for coder
+    python_scenarios = [
+        (
+            "[Instruksi: Tulis fungsi Python untuk membalikkan sebuah string]",
+            "(Penjabaran logika singkat)
+Fungsi ini memanfaatkan slicing pada Python dengan step -1 untuk membalikkan urutan karakter dalam string.
+
+```python
+def reverse_string(s):
+    return s[::-1]
+```",
+        ),
+        (
+            "[Instruksi: Tulis skrip Python sederhana untuk membaca file teks dan menghitung jumlah kata]",
+            "(Penjabaran logika singkat)
+Skrip ini membuka file menggunakan konteks `with`, membaca seluruh konten, memisahkan teks berdasarkan spasi dengan `split()`, dan mengembalikan jumlah elemen.
+
+```python
+def count_words_in_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return len(f.read().split())
+```",
+        )
     ]
-    openers = [
-        "aku {mood}", "duh aku {mood} nih", "hari ini aku {mood}",
-        "hmm aku {mood} banget", "loh kok aku {mood} ya",
-        "kayaknya aku lagi {mood}", "jujur aku {mood} dari tadi", "aku tuh {mood}, gimana ya",
+    rust_scenarios = [
+        (
+            "[Instruksi: Tulis fungsi Rust untuk mencari nilai maksimum dalam array]",
+            "(Penjabaran logika singkat)
+Fungsi ini mengambil slice of i32 dan menggunakan iterator `iter()` dan metode `max()` yang mengembalikan `Option<&i32>`. Kita menyalin nilainya dengan `copied()`.
+
+```rust
+fn find_max(arr: &[i32]) -> Option<i32> {
+    arr.iter().max().copied()
+}
+```",
+        )
     ]
-    closers = [
-        "iyaaa makasih ya", "enggaa kok, aku cuma pengen ditemenin", "wkwk kamu ada-ada aja",
-        "boleh, temenin dulu ya", "ndak tau kenapa tapi jadi agak lega",
+    math_scenarios = [
+        (
+            "[Instruksi: Berapa akar kuadrat dari 144?]",
+            "(Penjabaran logika singkat)
+Akar kuadrat dari 144 adalah angka yang jika dikalikan dengan dirinya sendiri menghasilkan 144. Kita tahu bahwa 12 * 12 = 144. Maka jawabannya adalah 12.",
+        )
     ]
-    clean_followups = [
-        "santai aja, kita ngobrol pelan-pelan.",
-        "gapapa, aku temenin dulu pelan-pelan.",
-        "aku dengerin kok. kamu gak perlu buru-buru jelasin semuanya.",
-        "kita pelan-pelan aja ya, yang penting kamu gak sendirian.",
-        "kalau mau diem dulu juga boleh, aku tetap nemenin.",
-        "aku di sini. kamu boleh cerita sedikit demi sedikit.",
-        "coba mulai dari satu hal yang paling kerasa sekarang.",
-        "gak harus rapi ceritanya, yang penting keluar dulu sedikit.",
-        "mau aku bantu urutin, atau kamu cuma pengen ditemenin?",
-        "ambil napas dulu, terus kita pilih langkah paling kecil.",
-    ]
-    local_followups = [
-        "gapapa euy, aku temenin dulu pelan-pelan.",
-        "kalem atuh, kita obrolin satu-satu.",
-        "aku dengerin ae, pelan-pelan.",
-        "iso kok, yang penting jangan dipendem sendiri terus.",
-    ]
-    roleplay = ["*senyum kecil*", "*duduk di sebelahmu*", "*nada pelan*", "*mengangguk pelan*"]
-    second_prefixes = [
-        "iyaa, aku di sini.",
-        "oke, aku tetap nemenin.",
-        "gapapa, pelan-pelan aja.",
-        "aku paham, sini dulu.",
-        "boleh, kita santai dulu.",
-        "tenang, gak perlu buru-buru.",
-    ]
+
+    scenarios = python_scenarios + rust_scenarios + math_scenarios
 
     for _ in range(count):
-        mood, answer = rng.choice(moods)
-        opener = rng.choice(openers).format(mood=mood)
-        followup_pool = clean_followups + (local_followups if include_local_flavor else [])
-        followup = rng.choice(followup_pool)
-        rp = rng.choice(roleplay)
-        second_user = rng.choice(closers)
-        turns = [
-            (ROLE_USER, opener),
-            (ROLE_CHAR, f"{rp} {answer}"),
-            (ROLE_USER, second_user),
-            (ROLE_CHAR, f"{rng.choice(second_prefixes)} {followup}"),
+        user, char = rng.choice(scenarios)
+        yield [
+            (ROLE_USER, user),
+            (ROLE_CHAR, char),
         ]
-        yield turns
-
 
 def synthesize_chat_clean_dialogues(
     count: int,

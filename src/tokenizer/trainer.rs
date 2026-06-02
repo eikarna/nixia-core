@@ -212,7 +212,11 @@ mod tests {
 
         assert_eq!(vocab.id(special::USER), Some(4));
         assert_eq!(vocab.id(special::CHARACTER), Some(5));
-        assert!(vocab.id(&format!("{}<user>", special::SPACE_MARKER)).is_none());
+        assert!(
+            vocab
+                .id(&format!("{}<user>", special::SPACE_MARKER))
+                .is_none()
+        );
         assert!(vocab.id("user>").is_none());
         assert!(vocab.id("char>").is_none());
     }
@@ -225,7 +229,8 @@ mod tests {
                 vocab_size: 20,
                 min_pair_frequency: 1,
             },
-        ).unwrap();
+        )
+        .unwrap();
 
         let vocab2 = train_vocab(
             "a b c d e f a b c d e f",
@@ -233,7 +238,8 @@ mod tests {
                 vocab_size: 20,
                 min_pair_frequency: 1,
             },
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(vocab1.tokens(), vocab2.tokens());
     }
@@ -246,7 +252,8 @@ mod tests {
                 vocab_size: 11,
                 min_pair_frequency: 1,
             },
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(vocab.len() > 0);
     }
@@ -259,13 +266,17 @@ mod tests {
                 vocab_size: 20,
                 min_pair_frequency: 1,
             },
-        ).unwrap();
+        )
+        .unwrap();
 
         let mut tokens = vocab.tokens().to_vec();
         tokens.sort();
         let len_before = tokens.len();
         tokens.dedup();
         let len_after = tokens.len();
-        assert_eq!(len_before, len_after, "Vocabulary should not contain duplicate tokens");
+        assert_eq!(
+            len_before, len_after,
+            "Vocabulary should not contain duplicate tokens"
+        );
     }
 }
