@@ -181,7 +181,7 @@
     {
       "id": "sahil2801_codealpaca",
       "enabled": true,
-      "type": "hf_rows",
+      "type": "hf_raw_json",
       "repo": "sahil2801/CodeAlpaca-20k",
       "config": "default",
       "split": "train",
@@ -189,7 +189,44 @@
       "license": "apache-2.0",
       "license_class": "permissive",
       "use": "instruction_chat",
-      "quality": "20K rows of code generation tasks from Alpaca"
+      "quality": "20K rows of code generation tasks from Alpaca",
+      "file": "code_alpaca_20k.json"
+    },
+    {
+      "id": "nickrosh_evol_instruct_code",
+      "enabled": true,
+      "type": "hf_raw_json",
+      "repo": "nickrosh/Evol-Instruct-Code-80k-v1",
+      "adapter": "hf_input_output",
+      "license": "apache-2.0",
+      "license_class": "permissive",
+      "use": "instruction_chat",
+      "quality": "80K rows of complex coding instructions. Excellent for reasoning.",
+      "file": "EvolInstruct-Code-80k.json",
+      "question_fields": [
+        "instruction"
+      ],
+      "answer_fields": [
+        "output"
+      ]
+    },
+    {
+      "id": "ise_uiuc_magicoder",
+      "enabled": true,
+      "type": "hf_raw_jsonl",
+      "repo": "ise-uiuc/Magicoder-Evol-Instruct-110K",
+      "adapter": "hf_input_output",
+      "license": "apache-2.0",
+      "license_class": "permissive",
+      "use": "instruction_chat",
+      "quality": "110K rows of magicoder instructions. Excellent for reasoning.",
+      "file": "data-evol_instruct-decontaminated.jsonl",
+      "question_fields": [
+        "instruction"
+      ],
+      "answer_fields": [
+        "response"
+      ]
     }
   ]
 }
