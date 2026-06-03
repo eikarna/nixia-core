@@ -95,7 +95,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--binary", default="", help="Path to nixia binary. Defaults to cargo run --release --")
     parser.add_argument("--tokens", type=int, default=64)
     parser.add_argument("--limit", type=int, default=0, help="Only run the first N prompts; useful for smoke tests")
-    parser.add_argument("--timeout-seconds", type=int, default=120)
+    parser.add_argument("--timeout-seconds", type=int, default=1200)
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--top-k", type=int, default=30)
     parser.add_argument("--top-p", type=float, default=0.92)
