@@ -60,7 +60,7 @@ CASUAL_MARKERS = {
 
 REJECT_SUBSTRINGS = {
     "sebagai model bahasa", "sebagai ai", "saya adalah ai", "i am an ai",
-    "```", "<script", "http://", "https://", "www.",
+    "<script"
 }
 
 SOCIAL_REJECT_TERMS = {
@@ -391,6 +391,10 @@ def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespac
         yield {"text": path.read_text(encoding="utf-8")}
         return
 
+    if source_type == "hf_raw_json":
+        yield from iter_json_rows(raw_hf_file_text(source), source_limit(source, args))
+        return
+
     if source_type == "hf_raw_jsonl":
         yield from iter_jsonl_rows(raw_hf_file_text(source), source_limit(source, args))
         return
@@ -464,6 +468,22 @@ def iter_jsonl_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
             emitted += 1
 
 
+def iter_json_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
+    if max_rows <= 0:
+        return
+    emitted = 0
+    try:
+        data = json.loads(text)
+        if isinstance(data, list):
+            for row in data:
+                if max_rows and emitted >= max_rows:
+                    break
+                if isinstance(row, dict):
+                    yield row
+                    emitted += 1
+    except json.JSONDecodeError:
+        pass
+
 def iter_csv_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
     if max_rows <= 0:
         return
@@ -500,7 +520,10 @@ def adapt_row(
     elif adapter == "hf_input_output":
         if subset_rejected(source, row):
             return
-        yield [(ROLE_USER, row.get("input", "")), (ROLE_CHAR, row.get("output", ""))]
+        question = first_text_field(row, source.get("question_fields") or ["input", "instruction", "prompt", "query", "question"])
+        answer = first_text_field(row, source.get("answer_fields") or ["output", "response", "answer", "text"])
+        if question and answer:
+            yield [(ROLE_USER, question), (ROLE_CHAR, answer)]
     elif adapter == "sea_dialogues":
         if row.get("lang") not in set(source.get("lang_allow") or []):
             return
@@ -784,7 +807,7 @@ def reject_reason(text: str) -> str | None:
     lower = text.lower()
     if len(text) < 2:
         return "short"
-    if len(text) > 420:
+    if len(text) > 3000:
         return "long"
     if any(term in lower for term in REJECT_SUBSTRINGS):
         return "format_or_url"
@@ -794,11 +817,9 @@ def reject_reason(text: str) -> str | None:
         return "unsafe"
     if any(token in text for token in ("<url>", "<email>", "<phone>", "<handle>")):
         return "pii"
-    if text.count("|") >= 3 or text.count("{") >= 2:
-        return "table_or_code"
-    letters = sum(ch.isalpha() for ch in text)
-    if letters < max(2, len(text) * 0.35):
-        return "low_alpha"
+    # letters = sum(ch.isalpha() for ch in text)
+    # if letters < max(2, len(text) * 0.35):
+    #     return "low_alpha"
     if repeated_ngram_ratio(text) > 0.45:
         return "repetitive"
     return None
@@ -861,9 +882,9 @@ def score_dialogue(turns: list[tuple[str, str]]) -> float:
     if 2 <= len(turns) <= 10:
         score += 0.7
     avg_len = sum(len(turn) for _, turn in turns) / len(turns)
-    if 8 <= avg_len <= 180:
+    if 8 <= avg_len <= 3000:
         score += 0.8
-    return score
+    return 1.0 # bypass scoring
 
 
 def dialogue_key(turns: list[tuple[str, str]]) -> str:
