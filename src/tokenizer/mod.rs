@@ -130,12 +130,21 @@ impl TinyTokenizer {
     }
 
     fn longest_piece(&self, text: &str) -> (usize, usize) {
-        let max_len = text.chars().count().min(self.max_piece_chars);
+        let mut iter = text.char_indices();
+        let mut end_indices = Vec::with_capacity(self.max_piece_chars);
 
-        for len in (1..=max_len).rev() {
-            let piece = text.chars().take(len).collect::<String>();
-            if let Some(id) = self.vocab.id(&piece) {
-                return (id, len);
+        for _ in 0..self.max_piece_chars {
+            if let Some((idx, c)) = iter.next() {
+                end_indices.push(idx + c.len_utf8());
+            } else {
+                break;
+            }
+        }
+
+        for (i, &end_idx) in end_indices.iter().enumerate().rev() {
+            let piece = &text[..end_idx];
+            if let Some(id) = self.vocab.id(piece) {
+                return (id, i + 1);
             }
         }
 
