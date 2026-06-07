@@ -89,15 +89,14 @@ impl<B: Backend> Batcher<B, LmItem, LmBatch<B>> for LmBatcher {
             .map(|item| item.input.len())
             .unwrap_or_default();
 
-        let inputs = items
-            .iter()
-            .flat_map(|item| item.input.iter().map(|&id| id.elem::<B::IntElem>()))
-            .collect::<Vec<_>>();
+        let capacity = batch_size * seq_len;
+        let mut inputs = Vec::with_capacity(capacity);
+        let mut targets = Vec::with_capacity(capacity);
 
-        let targets = items
-            .iter()
-            .flat_map(|item| item.target.iter().map(|&id| id.elem::<B::IntElem>()))
-            .collect::<Vec<_>>();
+        for item in items.iter() {
+            inputs.extend(item.input.iter().map(|&id| id.elem::<B::IntElem>()));
+            targets.extend(item.target.iter().map(|&id| id.elem::<B::IntElem>()));
+        }
 
         LmBatch {
             inputs: Tensor::<B, 2, Int>::from_data(

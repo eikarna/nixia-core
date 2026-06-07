@@ -20,3 +20,6 @@ harness = false
 [[bench]]
 name = "lm_forward_seq1"
 harness = false
+[[bench]]
+name = "batcher"
+harness = false
