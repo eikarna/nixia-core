@@ -21,7 +21,7 @@ impl Default for BpeTrainerConfig {
 
 #[derive(Clone, Debug)]
 struct WordEntry {
-    pieces: Vec<String>,
+    pieces: Vec<std::rc::Rc<str>>,
     count: usize,
 }
 
@@ -78,9 +78,12 @@ pub fn train_vocab(corpus: &str, config: BpeTrainerConfig) -> Result<Vocabulary>
     Vocabulary::new(vocab)
 }
 
-fn word_to_initial_pieces(word: &str) -> Vec<String> {
+fn word_to_initial_pieces(word: &str) -> Vec<std::rc::Rc<str>> {
     let with_marker = format!("{}{}", special::SPACE_MARKER, word);
-    with_marker.chars().map(|ch| ch.to_string()).collect()
+    with_marker
+        .chars()
+        .map(|ch| std::rc::Rc::from(ch.to_string().as_str()))
+        .collect()
 }
 
 fn add_current_pieces(
@@ -92,7 +95,7 @@ fn add_current_pieces(
     let mut piece_frequency = HashMap::<&str, usize>::new();
     for word in words {
         for piece in &word.pieces {
-            *piece_frequency.entry(piece.as_str()).or_default() += word.count;
+            *piece_frequency.entry(&**piece).or_default() += word.count;
         }
     }
 
@@ -119,7 +122,7 @@ fn most_frequent_pair(words: &[WordEntry]) -> Option<(String, String, usize)> {
 
     for word in words {
         for pair in word.pieces.windows(2) {
-            let key = (pair[0].as_str(), pair[1].as_str());
+            let key = (&*pair[0], &*pair[1]);
             *pair_counts.entry(key).or_default() += word.count;
         }
     }
@@ -136,16 +139,17 @@ fn most_frequent_pair(words: &[WordEntry]) -> Option<(String, String, usize)> {
 }
 
 fn merge_pair_in_words(words: &mut [WordEntry], left: &str, right: &str, merged: &str) {
+    let merged_rc: std::rc::Rc<str> = std::rc::Rc::from(merged);
     for word in words {
         let mut next = Vec::with_capacity(word.pieces.len());
         let mut index = 0usize;
 
         while index < word.pieces.len() {
             if index + 1 < word.pieces.len()
-                && word.pieces[index] == left
-                && word.pieces[index + 1] == right
+                && &*word.pieces[index] == left
+                && &*word.pieces[index + 1] == right
             {
-                next.push(merged.to_string());
+                next.push(std::rc::Rc::clone(&merged_rc));
                 index += 2;
             } else {
                 next.push(word.pieces[index].clone());
@@ -166,7 +170,7 @@ fn sort_tail_by_frequency(vocab: &mut [String], words: &[WordEntry]) {
     let mut frequency = HashMap::<&str, usize>::new();
     for word in words {
         for piece in &word.pieces {
-            *frequency.entry(piece.as_str()).or_default() += word.count;
+            *frequency.entry(&**piece).or_default() += word.count;
         }
     }
 
