@@ -9,6 +9,7 @@ use burn::{
 };
 
 use super::feed_forward::{SwiGluConfig, SwiGluFeedForward};
+use super::quantization::QuantizationConfig;
 
 #[derive(Clone, Debug)]
 pub struct DecoderBlockConfig {
@@ -16,6 +17,7 @@ pub struct DecoderBlockConfig {
     pub n_heads: usize,
     pub d_ff: usize,
     pub dropout: f64,
+    pub quantization: Option<QuantizationConfig>,
 }
 
 #[derive(Module, Debug)]
@@ -41,6 +43,7 @@ impl DecoderBlockConfig {
                 d_model: self.d_model,
                 d_ff: self.d_ff,
                 dropout: self.dropout,
+                quantization: self.quantization.clone(),
             }
             .init(device),
             dropout: DropoutConfig::new(self.dropout).init(),
@@ -65,5 +68,12 @@ impl<B: Backend> DecoderBlock<B> {
         let ff = self.feed_forward.forward(self.norm_ff.forward(x.clone()));
 
         x + self.dropout.forward(ff)
+    }
+
+    pub fn quantize(&mut self) {
+        self.feed_forward.quantize();
+        // Since MultiHeadAttention contains Linears internally, we might want to quantize them too.
+        // However, burn's MHA doesn't expose its Linears as easily without custom wrappers.
+        // For Nixia 1B PTQ, we'll start with the large FFN layers.
     }
 }

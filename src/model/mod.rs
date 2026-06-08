@@ -6,3 +6,4 @@ pub mod preset;
 pub use block::{DecoderBlock, DecoderBlockConfig};
 pub use feed_forward::{SwiGluConfig, SwiGluFeedForward};
 pub use lm::{TinyLm, TinyLmConfig};
+pub mod quantization;
