@@ -14,6 +14,7 @@ rocm-backend = ["burn/rocm"]
 
 [dev-dependencies]
 criterion = "0.8.2"
+rand = "0.10.1"
 [[bench]]
 name = "lm_forward"
 harness = false
@@ -22,4 +23,7 @@ name = "lm_forward_seq1"
 harness = false
 [[bench]]
 name = "batcher"
+harness = false
+[[bench]]
+name = "sampling"
 harness = false

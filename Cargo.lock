@@ -3552,6 +3552,7 @@ version = "0.1.0"
 dependencies = [
  "burn",
  "criterion",
+ "rand 0.10.1",
 ]
 
 [[package]]
