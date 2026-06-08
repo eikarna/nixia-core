@@ -1,7 +1,7 @@
 mod chat;
 mod quantization;
 mod runtime;
-mod sampling;
+pub mod sampling;
 
 pub use chat::{build_chat_prompt, clean_chat_output};
 pub use quantization::quantize_int8_weights;

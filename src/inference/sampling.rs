@@ -50,12 +50,18 @@ impl TokenSampler {
         let recent_start = history.len().saturating_sub(config.repetition_window);
         let recent = &history[recent_start..];
 
+        let max_recent_id = recent.iter().copied().max().unwrap_or(0);
+        let mut recent_set = vec![false; max_recent_id + 1];
+        for &id in recent {
+            recent_set[id] = true;
+        }
+
         let mut scored = logits
             .iter()
             .enumerate()
             .map(|(id, &logit)| {
                 let mut value = logit;
-                if config.repetition_penalty > 1.0 && recent.contains(&id) {
+                if config.repetition_penalty > 1.0 && id < recent_set.len() && recent_set[id] {
                     value /= config.repetition_penalty;
                 }
                 if would_repeat_ngram(history, id, config.no_repeat_ngram_size) {
