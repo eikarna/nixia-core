@@ -11,6 +11,7 @@ use burn::{
 };
 
 use super::block::{DecoderBlock, DecoderBlockConfig};
+use super::quantization::QuantizationConfig;
 
 #[derive(Config, Debug)]
 pub struct TinyLmConfig {
@@ -37,6 +38,9 @@ pub struct TinyLmConfig {
 
     #[config(default = 0)]
     pub pad_token_id: usize,
+
+    // Removing default = None because burn config macro has issues parsing None literals
+    pub quantization: Option<QuantizationConfig>,
 }
 
 #[derive(Module, Debug)]
@@ -63,6 +67,7 @@ impl TinyLmConfig {
             n_heads: self.n_heads,
             d_ff: self.d_ff,
             dropout: self.dropout,
+            quantization: self.quantization.clone(),
         };
 
         TinyLm {
@@ -142,6 +147,14 @@ impl<B: Backend> TinyLm<B> {
             .forward(logits.clone(), targets.clone());
 
         ClassificationOutput::new(loss, logits, targets)
+    }
+
+    pub fn calibrate(&mut self) {}
+
+    pub fn apply_quantization(&mut self) {
+        for block in self.blocks.iter_mut() {
+            block.quantize();
+        }
     }
 
     pub fn max_seq_len(&self) -> usize {
