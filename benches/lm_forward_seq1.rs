@@ -15,6 +15,7 @@ fn bench_lm_forward(c: &mut Criterion) {
         d_ff: 128,
         dropout: 0.0,
         pad_token_id: 0,
+        quantization: None,
     };
 
     let model: TinyLm<Backend> = config.init(&device);

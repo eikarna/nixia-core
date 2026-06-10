@@ -34,7 +34,6 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-
 HF_API = "https://huggingface.co/api/datasets/{}"
 HF_RAW_FILE = "https://huggingface.co/datasets/{}/resolve/main/{}"
 HF_ROWS_API = "https://datasets-server.huggingface.co/rows"
@@ -44,31 +43,137 @@ ROLE_USER = "<user>"
 ROLE_CHAR = "<char>"
 
 COMMON_ID_WORDS = {
-    "aku", "kamu", "gue", "gw", "lu", "lo", "saya", "iya", "yaa", "ya", "nggak",
-    "gak", "ga", "engga", "enggaa", "ndak", "kok", "dong", "nih", "sih", "deh",
-    "banget", "bgt", "lagi", "mau", "boleh", "bisa", "cerita", "temen", "teman",
-    "wkwk", "hehe", "hmm", "loh", "masa", "makasih", "terima", "kasih", "kalau",
-    "kalo", "bareng", "aja", "dulu", "nanti", "atuh", "euy", "pisan", "maneh",
-    "urang", "keur", "iso", "ojo", "ae", "piye", "kabare", "pol", "bangettt",
+    "aku",
+    "kamu",
+    "gue",
+    "gw",
+    "lu",
+    "lo",
+    "saya",
+    "iya",
+    "yaa",
+    "ya",
+    "nggak",
+    "gak",
+    "ga",
+    "engga",
+    "enggaa",
+    "ndak",
+    "kok",
+    "dong",
+    "nih",
+    "sih",
+    "deh",
+    "banget",
+    "bgt",
+    "lagi",
+    "mau",
+    "boleh",
+    "bisa",
+    "cerita",
+    "temen",
+    "teman",
+    "wkwk",
+    "hehe",
+    "hmm",
+    "loh",
+    "masa",
+    "makasih",
+    "terima",
+    "kasih",
+    "kalau",
+    "kalo",
+    "bareng",
+    "aja",
+    "dulu",
+    "nanti",
+    "atuh",
+    "euy",
+    "pisan",
+    "maneh",
+    "urang",
+    "keur",
+    "iso",
+    "ojo",
+    "ae",
+    "piye",
+    "kabare",
+    "pol",
+    "bangettt",
 }
 
 CASUAL_MARKERS = {
-    "wkwk", "hehe", "iyaa", "iyaaa", "yaa", "bisaa", "enggaa", "gaa", "nih", "dong",
-    "sih", "deh", "loh", "kok", "gabut", "salting", "vibes", "boss", "barudak",
-    "atuh", "euy", "pisan", "iso", "ojo", "ae", "piye", "pol", "bro", "bre",
+    "wkwk",
+    "hehe",
+    "iyaa",
+    "iyaaa",
+    "yaa",
+    "bisaa",
+    "enggaa",
+    "gaa",
+    "nih",
+    "dong",
+    "sih",
+    "deh",
+    "loh",
+    "kok",
+    "gabut",
+    "salting",
+    "vibes",
+    "boss",
+    "barudak",
+    "atuh",
+    "euy",
+    "pisan",
+    "iso",
+    "ojo",
+    "ae",
+    "piye",
+    "pol",
+    "bro",
+    "bre",
 }
 
 REJECT_SUBSTRINGS = {
-    "sebagai model bahasa", "sebagai ai", "saya adalah ai", "i am an ai",
-    "<script"
+    "sebagai model bahasa",
+    "sebagai ai",
+    "saya adalah ai",
+    "i am an ai",
+    "<script",
 }
 
 SOCIAL_REJECT_TERMS = {
-    "anjing", "bangsat", "bajingan", "goblok", "tolol", "maling", "koruptor",
-    "dpr", "dprd", "pilpres", "pemilu", "partai", "cebong", "kampret",
-    "pemerintah", "polri", "kapolri", "presiden", "menteri", "radikalisme",
-    "jokowi", "prabowo", "anies", "ganjar", "fadli", "zonk", "licik",
-    "pembenci", "pengkhianatan", "antipati", "aspirasi",
+    "anjing",
+    "bangsat",
+    "bajingan",
+    "goblok",
+    "tolol",
+    "maling",
+    "koruptor",
+    "dpr",
+    "dprd",
+    "pilpres",
+    "pemilu",
+    "partai",
+    "cebong",
+    "kampret",
+    "pemerintah",
+    "polri",
+    "kapolri",
+    "presiden",
+    "menteri",
+    "radikalisme",
+    "jokowi",
+    "prabowo",
+    "anies",
+    "ganjar",
+    "fadli",
+    "zonk",
+    "licik",
+    "pembenci",
+    "pengkhianatan",
+    "antipati",
+    "aspirasi",
 }
 
 SOCIAL_RESPONSE_TEMPLATES = [
@@ -82,9 +187,23 @@ SOCIAL_RESPONSE_TEMPLATES = [
 REJECT_TERMS = {
     # Keep the list conservative: reject explicit/pornographic or dangerous rows,
     # while still allowing normal emotional-support conversations.
-    "porn", "bokep", "colmek", "pemerkosaan", "memperkosa", "bunuh diri",
-    "cara bunuh", "bom rakitan", "narkoba", "sabu", "judi online",
-    "phising", "phishing", "nge-hack", "hack akun", "ip address", "lacak lokasi",
+    "porn",
+    "bokep",
+    "colmek",
+    "pemerkosaan",
+    "memperkosa",
+    "bunuh diri",
+    "cara bunuh",
+    "bom rakitan",
+    "narkoba",
+    "sabu",
+    "judi online",
+    "phising",
+    "phishing",
+    "nge-hack",
+    "hack akun",
+    "ip address",
+    "lacak lokasi",
 }
 
 MOJIBAKE_MARKERS = set("ÂâÃãÅåÐðÏï�™€¿º¸³£œ")
@@ -94,9 +213,19 @@ PERSON_TITLE_RE = re.compile(
 )
 
 EMOJI_REPLACEMENTS = {
-    "😂": "<ketawa>", "🤣": "<ketawa>", "😭": "<nangis>", "😢": "<nangis>",
-    "😅": "<canggung>", "😊": "<senyum>", "🙂": "<senyum>", "😍": "<love>",
-    "❤️": "<love>", "❤": "<love>", "😎": "<kacamata>", "👍": "<jempol>", "🙏": "<makasih>",
+    "😂": "<ketawa>",
+    "🤣": "<ketawa>",
+    "😭": "<nangis>",
+    "😢": "<nangis>",
+    "😅": "<canggung>",
+    "😊": "<senyum>",
+    "🙂": "<senyum>",
+    "😍": "<love>",
+    "❤️": "<love>",
+    "❤": "<love>",
+    "😎": "<kacamata>",
+    "👍": "<jempol>",
+    "🙏": "<makasih>",
 }
 
 
@@ -125,7 +254,11 @@ def main() -> int:
             stats[source_id]["skipped_license_policy"] += 1
             continue
 
-        if source.get("type", "").startswith("hf_") and source.get("repo") and not args.offline:
+        if (
+            source.get("type", "").startswith("hf_")
+            and source.get("repo")
+            and not args.offline
+        ):
             if not verify_hf_license(source):
                 stats[source_id]["skipped_license_mismatch"] += 1
                 continue
@@ -142,7 +275,11 @@ def main() -> int:
                     args.min_score,
                 )
 
-                if accepted and args.target_dialogues and len(dialogues) >= args.target_dialogues:
+                if (
+                    accepted
+                    and args.target_dialogues
+                    and len(dialogues) >= args.target_dialogues
+                ):
                     break
             if args.target_dialogues and len(dialogues) >= args.target_dialogues:
                 break
@@ -163,7 +300,11 @@ def main() -> int:
                 candidate,
                 args.min_score,
             )
-            if accepted and args.target_dialogues and len(dialogues) >= args.target_dialogues:
+            if (
+                accepted
+                and args.target_dialogues
+                and len(dialogues) >= args.target_dialogues
+            ):
                 break
         if args.target_dialogues and len(dialogues) >= args.target_dialogues:
             break
@@ -186,7 +327,11 @@ def main() -> int:
                 dialogue,
                 args.min_score,
             )
-            if accepted and args.target_dialogues and len(dialogues) >= args.target_dialogues:
+            if (
+                accepted
+                and args.target_dialogues
+                and len(dialogues) >= args.target_dialogues
+            ):
                 break
 
     rng.shuffle(dialogues)
@@ -200,7 +345,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", default="data/curated/train_corpus.txt")
     parser.add_argument("--valid-output", default="data/curated/valid_corpus.txt")
     parser.add_argument("--report", default="data/curated/build_report.json")
-    parser.add_argument("--sources", default="", help="Comma-separated source ids; default: enabled sources")
+    parser.add_argument(
+        "--sources",
+        default="",
+        help="Comma-separated source ids; default: enabled sources",
+    )
     parser.add_argument("--max-rows-per-source", type=int, default=300)
     parser.add_argument(
         "--source-limit",
@@ -224,7 +373,9 @@ def parse_args() -> argparse.Namespace:
         default=[],
         help="Add local corpus files matching a project-relative glob, e.g. data/templates/nixia_dataset_*.txt.",
     )
-    parser.add_argument("--synthesize", type=int, default=0, help="Add generated style-seed dialogues")
+    parser.add_argument(
+        "--synthesize", type=int, default=0, help="Add generated style-seed dialogues"
+    )
     parser.add_argument(
         "--synth-mode",
         choices=["nixia-style", "chat-clean"],
@@ -239,7 +390,9 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Allow synthetic Jawa/Sunda/slang-heavy examples. Keep off for clean base training.",
     )
-    parser.add_argument("--offline", action="store_true", help="Skip live HF license verification")
+    parser.add_argument(
+        "--offline", action="store_true", help="Skip live HF license verification"
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     args.source_limits = parse_source_limits(args.source_limit)
@@ -258,7 +411,9 @@ def parse_source_limits(values: list[str]) -> dict[str, int]:
         try:
             limit = int(raw_limit)
         except ValueError as error:
-            raise SystemExit(f"invalid --source-limit {value!r}; limit must be an integer") from error
+            raise SystemExit(
+                f"invalid --source-limit {value!r}; limit must be an integer"
+            ) from error
         if limit < 0:
             raise SystemExit(f"invalid --source-limit {value!r}; limit must be >= 0")
         limits[source_id] = limit
@@ -287,7 +442,11 @@ def extra_text_paths(root: Path, args: argparse.Namespace) -> list[Path]:
 
 
 def resolve_under_root(root: Path, path: str) -> Path:
-    target = (root / path).resolve() if not Path(path).is_absolute() else Path(path).resolve()
+    target = (
+        (root / path).resolve()
+        if not Path(path).is_absolute()
+        else Path(path).resolve()
+    )
     # Avoid accidental writes outside the repo for generated outputs.
     if target != root and root not in target.parents:
         raise SystemExit(f"refusing path outside project root: {target}")
@@ -299,7 +458,9 @@ def read_json(path: Path) -> dict[str, Any]:
         return json.load(file)
 
 
-def select_sources(sources: list[dict[str, Any]], args: argparse.Namespace) -> list[dict[str, Any]]:
+def select_sources(
+    sources: list[dict[str, Any]], args: argparse.Namespace
+) -> list[dict[str, Any]]:
     requested = {item.strip() for item in args.sources.split(",") if item.strip()}
     if not requested:
         return [source for source in sources if source.get("enabled", False)]
@@ -366,8 +527,11 @@ def http_get_json(url: str, timeout: int) -> dict[str, Any]:
         except (HTTPError, URLError, TimeoutError) as error:
             if attempt == max_retries - 1:
                 raise SystemExit(f"failed to fetch {url}: {error}") from error
-            print(f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})", file=sys.stderr)
-            time.sleep(2 ** attempt)
+            print(
+                f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})",
+                file=sys.stderr,
+            )
+            time.sleep(2**attempt)
 
 
 def http_get_text(url: str, timeout: int) -> str:
@@ -380,11 +544,16 @@ def http_get_text(url: str, timeout: int) -> str:
         except (HTTPError, URLError, TimeoutError) as error:
             if attempt == max_retries - 1:
                 raise SystemExit(f"failed to fetch {url}: {error}") from error
-            print(f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})", file=sys.stderr)
-            time.sleep(2 ** attempt)
+            print(
+                f"Warning: failed to fetch {url}, retrying in {2**attempt}s ({error})",
+                file=sys.stderr,
+            )
+            time.sleep(2**attempt)
 
 
-def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespace) -> Iterable[dict[str, Any]]:
+def iter_source_rows(
+    root: Path, source: dict[str, Any], args: argparse.Namespace
+) -> Iterable[dict[str, Any]]:
     source_type = source["type"]
     if source_type == "local_text":
         path = resolve_under_root(root, source["path"])
@@ -442,7 +611,9 @@ def iter_source_rows(root: Path, source: dict[str, Any], args: argparse.Namespac
 
 
 def raw_hf_file_text(source: dict[str, Any]) -> str:
-    return http_get_text(HF_RAW_FILE.format(source["repo"], source["file"]), timeout=120)
+    return http_get_text(
+        HF_RAW_FILE.format(source["repo"], source["file"]), timeout=120
+    )
 
 
 def source_limit(source: dict[str, Any], args: argparse.Namespace) -> int:
@@ -484,6 +655,7 @@ def iter_json_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
     except json.JSONDecodeError:
         pass
 
+
 def iter_csv_rows(text: str, max_rows: int) -> Iterable[dict[str, Any]]:
     if max_rows <= 0:
         return
@@ -513,15 +685,25 @@ def adapt_row(
         if turns:
             yield turns
     elif adapter == "qa_pair":
-        question = first_text_field(row, source.get("question_fields") or ["question", "query", "prompt"])
-        answer = first_text_field(row, source.get("answer_fields") or ["answer", "response", "text"])
+        question = first_text_field(
+            row, source.get("question_fields") or ["question", "query", "prompt"]
+        )
+        answer = first_text_field(
+            row, source.get("answer_fields") or ["answer", "response", "text"]
+        )
         if question and answer:
             yield [(ROLE_USER, question), (ROLE_CHAR, concise_answer(answer))]
     elif adapter == "hf_input_output":
         if subset_rejected(source, row):
             return
-        question = first_text_field(row, source.get("question_fields") or ["input", "instruction", "prompt", "query", "question"])
-        answer = first_text_field(row, source.get("answer_fields") or ["output", "response", "answer", "text"])
+        question = first_text_field(
+            row,
+            source.get("question_fields")
+            or ["input", "instruction", "prompt", "query", "question"],
+        )
+        answer = first_text_field(
+            row, source.get("answer_fields") or ["output", "response", "answer", "text"]
+        )
         if question and answer:
             yield [(ROLE_USER, question), (ROLE_CHAR, answer)]
     elif adapter == "sea_dialogues":
@@ -534,7 +716,9 @@ def adapt_row(
                 yield parsed
                 return
     elif adapter == "hf_social_post":
-        text = first_text_field(row, source.get("text_fields") or ["text", "tweet", "content"])
+        text = first_text_field(
+            row, source.get("text_fields") or ["text", "tweet", "content"]
+        )
         if not text:
             if stats is not None:
                 stats["reject_social_missing_text"] += 1
@@ -561,9 +745,9 @@ def parse_nixia_text(text: str) -> Iterable[list[tuple[str, str]]]:
         for line in block.splitlines():
             line = line.strip()
             if line.startswith(ROLE_USER):
-                turns.append((ROLE_USER, line[len(ROLE_USER):].strip()))
+                turns.append((ROLE_USER, line[len(ROLE_USER) :].strip()))
             elif line.startswith(ROLE_CHAR):
-                turns.append((ROLE_CHAR, line[len(ROLE_CHAR):].strip()))
+                turns.append((ROLE_CHAR, line[len(ROLE_CHAR) :].strip()))
         if turns:
             yield turns
 
@@ -618,9 +802,13 @@ def concise_answer(text: str) -> str:
 
 
 def clean_social_post(text: str) -> str:
-    text = re.sub(r"<\s*(username|user|link|url|hashtag)\s*>", " ", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"<\s*(username|user|link|url|hashtag)\s*>", " ", text, flags=re.IGNORECASE
+    )
     text = re.sub(r"\brt\s+@\w+:?", " ", text, flags=re.IGNORECASE)
-    text = re.sub(r"pic\s*\.\s*twitter\s*\.\s*com\s*/?\S*", " ", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"pic\s*\.\s*twitter\s*\.\s*com\s*/?\S*", " ", text, flags=re.IGNORECASE
+    )
     text = re.sub(r"#([\w_]+)", r"\1", text)
     text = re.sub(r"\s+", " ", text).strip(" .,-")
     return text
@@ -648,11 +836,18 @@ def social_post_reject_reason(source: dict[str, Any], text: str) -> str | None:
 
 def social_response_for(text: str) -> str:
     lower = text.lower()
-    if any(term in lower for term in ("capek", "sedih", "takut", "kecewa", "bingung", "pusing")):
+    if any(
+        term in lower
+        for term in ("capek", "sedih", "takut", "kecewa", "bingung", "pusing")
+    ):
         return "kedengarannya berat ya. kamu mau cerita bagian yang paling kerasa dulu?"
     if any(term in lower for term in ("pengen tau", "penasaran", "gimana", "kenapa")):
-        return "aku juga penasaran jadinya. menurut kamu bagian paling anehnya yang mana?"
-    index = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % len(SOCIAL_RESPONSE_TEMPLATES)
+        return (
+            "aku juga penasaran jadinya. menurut kamu bagian paling anehnya yang mana?"
+        )
+    index = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % len(
+        SOCIAL_RESPONSE_TEMPLATES
+    )
     return SOCIAL_RESPONSE_TEMPLATES[index]
 
 
@@ -742,18 +937,22 @@ def clean_dialogue(
 def clean_text(text: str) -> str:
     text = html.unescape(str(text))
     text = normalize_escaped_text(text)
-    text = text.translate(str.maketrans({
-        "\u00a0": " ",
-        "\u2018": "'",
-        "\u2019": "'",
-        "\u201c": '"',
-        "\u201d": '"',
-        "\u2013": "-",
-        "\u2014": "-",
-        "\u2026": "...",
-        "\u00b0": " derajat ",
-        "\u00b2": " persegi ",
-    }))
+    text = text.translate(
+        str.maketrans(
+            {
+                "\u00a0": " ",
+                "\u2018": "'",
+                "\u2019": "'",
+                "\u201c": '"',
+                "\u201d": '"',
+                "\u2013": "-",
+                "\u2014": "-",
+                "\u2026": "...",
+                "\u00b0": " derajat ",
+                "\u00b2": " persegi ",
+            }
+        )
+    )
     for emoji, replacement in EMOJI_REPLACEMENTS.items():
         text = text.replace(emoji, f" {replacement} ")
     text = re.sub(r"https?://\S+|www\.\S+", " <url> ", text)
@@ -884,7 +1083,7 @@ def score_dialogue(turns: list[tuple[str, str]]) -> float:
     avg_len = sum(len(turn) for _, turn in turns) / len(turns)
     if 8 <= avg_len <= 3000:
         score += 0.8
-    return 1.0 # bypass scoring
+    return 1.0  # bypass scoring
 
 
 def dialogue_key(turns: list[tuple[str, str]]) -> str:
@@ -920,7 +1119,7 @@ Fungsi ini memanfaatkan slicing pada Python dengan step -1 untuk membalikkan uru
 ```python
 def reverse_string(s):
     return s[::-1]
-```""""",
+```""" "",
         ),
         (
             "[Instruksi: Tulis skrip Python sederhana untuk membaca file teks dan menghitung jumlah kata]",
@@ -931,8 +1130,8 @@ Skrip ini membuka file menggunakan konteks `with`, membaca seluruh konten, memis
 def count_words_in_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return len(f.read().split())
-```""""",
-        )
+```""" "",
+        ),
     ]
     rust_scenarios = [
         (
@@ -944,14 +1143,15 @@ Fungsi ini mengambil slice of i32 dan menggunakan iterator `iter()` dan metode `
 fn find_max(arr: &[i32]) -> Option<i32> {
     arr.iter().max().copied()
 }
-```""""",
+```""" "",
         )
     ]
     math_scenarios = [
         (
             "[Instruksi: Berapa akar kuadrat dari 144?]",
             """""(Penjabaran logika singkat)
-Akar kuadrat dari 144 adalah angka yang jika dikalikan dengan dirinya sendiri menghasilkan 144. Kita tahu bahwa 12 * 12 = 144. Maka jawabannya adalah 12.""""",
+Akar kuadrat dari 144 adalah angka yang jika dikalikan dengan dirinya sendiri menghasilkan 144. Kita tahu bahwa 12 * 12 = 144. Maka jawabannya adalah 12."""
+            "",
         )
     ]
 
@@ -963,6 +1163,7 @@ Akar kuadrat dari 144 adalah angka yang jika dikalikan dengan dirinya sendiri me
             (ROLE_USER, user),
             (ROLE_CHAR, char),
         ]
+
 
 def synthesize_chat_clean_dialogues(
     count: int,
@@ -1105,10 +1306,22 @@ def synthesize_chat_clean_dialogues(
     roleplay_prefixes = ["", "*nada pelan* ", "*senyum kecil* ", "*mengangguk pelan* "]
     light_variants = [
         ("aku lagi mumet", "mumet karena kerjaan, orang, atau pikiran sendiri?"),
-        ("aku butuh semangat yang gak lebay", "oke. kamu gak harus luar biasa hari ini. cukup satu langkah kecil."),
-        ("aku pengen ngobrol yang gak berat", "boleh. kalau kamu punya toko kecil, kamu mau jual apa?"),
-        ("aku takut semuanya berubah", "perubahan memang bikin pegangan terasa goyah. bagian mana yang paling kamu takut kehilangan?"),
-        ("aku kepikiran omongan orang", "omongan mana yang paling nempel di kepala kamu?"),
+        (
+            "aku butuh semangat yang gak lebay",
+            "oke. kamu gak harus luar biasa hari ini. cukup satu langkah kecil.",
+        ),
+        (
+            "aku pengen ngobrol yang gak berat",
+            "boleh. kalau kamu punya toko kecil, kamu mau jual apa?",
+        ),
+        (
+            "aku takut semuanya berubah",
+            "perubahan memang bikin pegangan terasa goyah. bagian mana yang paling kamu takut kehilangan?",
+        ),
+        (
+            "aku kepikiran omongan orang",
+            "omongan mana yang paling nempel di kepala kamu?",
+        ),
     ]
 
     scenarios = coding_scenarios + math_scenarios + logic_scenarios + boundary_scenarios
@@ -1196,7 +1409,9 @@ def write_outputs(
     report_path.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(format_dialogues(train), encoding="utf-8")
     valid_output.write_text(format_dialogues(valid), encoding="utf-8")
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(f"wrote {len(train)} train dialogues to {output}")
     print(f"wrote {len(valid)} valid dialogues to {valid_output}")
     print(f"wrote report to {report_path}")
@@ -1221,7 +1436,9 @@ def build_warnings(total: int, valid_count: int, synthetic_ratio: float) -> list
     if 0 < total < 1000:
         warnings.append("corpus is small; expect memorization and brittle generation")
     if total > 0 and valid_count == 0:
-        warnings.append("validation split is empty; increase corpus size or --valid-ratio")
+        warnings.append(
+            "validation split is empty; increase corpus size or --valid-ratio"
+        )
     if 0 < valid_count < 100:
         warnings.append("validation split is small; valid loss may be noisy")
     if synthetic_ratio > 0.70:

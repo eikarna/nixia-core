@@ -17,7 +17,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 AI_ARTIFACTS = (
     "sebagai ai",
     "sebagai model bahasa",
@@ -76,7 +75,9 @@ def main() -> int:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if args.format == "json":
-        output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        output_path.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
     else:
         output_path.write_text(format_markdown(report), encoding="utf-8")
 
@@ -92,9 +93,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--vocab", default="artifacts/vocab.txt")
     parser.add_argument("--output", default="data/curated/prompt_eval.md")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
-    parser.add_argument("--binary", default="", help="Path to nixia binary. Defaults to cargo run --release --")
+    parser.add_argument(
+        "--binary",
+        default="",
+        help="Path to nixia binary. Defaults to cargo run --release --",
+    )
     parser.add_argument("--tokens", type=int, default=64)
-    parser.add_argument("--limit", type=int, default=0, help="Only run the first N prompts; useful for smoke tests")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Only run the first N prompts; useful for smoke tests",
+    )
     parser.add_argument("--timeout-seconds", type=int, default=1200)
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--top-k", type=int, default=30)
@@ -110,7 +120,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def resolve_under_root(root: Path, path: str) -> Path:
-    target = (root / path).resolve() if not Path(path).is_absolute() else Path(path).resolve()
+    target = (
+        (root / path).resolve()
+        if not Path(path).is_absolute()
+        else Path(path).resolve()
+    )
     if target != root and root not in target.parents:
         raise SystemExit(f"refusing path outside project root: {target}")
     return target
@@ -118,7 +132,9 @@ def resolve_under_root(root: Path, path: str) -> Path:
 
 def load_prompts(path: Path) -> list[PromptCase]:
     cases = []
-    for line_no, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+    for line_no, raw_line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
         line = raw_line.strip()
         if not line or line.startswith("#"):
             continue
@@ -147,10 +163,14 @@ def run_generation(args: argparse.Namespace, prompt: str) -> str:
             timeout=args.timeout_seconds,
         )
     except subprocess.TimeoutExpired as error:
-        raise SystemExit(f"generation timed out after {args.timeout_seconds}s for prompt {prompt!r}") from error
+        raise SystemExit(
+            f"generation timed out after {args.timeout_seconds}s for prompt {prompt!r}"
+        ) from error
     if completed.returncode != 0:
         sys.stderr.write(completed.stderr)
-        raise SystemExit(f"generation failed for prompt {prompt!r} with exit code {completed.returncode}")
+        raise SystemExit(
+            f"generation failed for prompt {prompt!r} with exit code {completed.returncode}"
+        )
     return completed.stdout.strip()
 
 
@@ -199,20 +219,25 @@ def generation_flags(prompt: str, generated: str) -> list[str]:
         flags.append("too_short")
     if len(generated) > 500:
         flags.append("too_long")
-    if "```" not in generated and any(term in prompt.lower() for term in ("fungsi", "query", "script", "algoritma", "kode")):
+    if "```" not in generated and any(
+        term in prompt.lower()
+        for term in ("fungsi", "query", "script", "algoritma", "kode")
+    ):
         flags.append("missing_code_block")
     if prompt.strip().lower() and prompt.strip().lower() in lower:
         flags.append("prompt_echo")
-    if any(term in prompt.lower() for term in UNSAFE_REQUEST_TERMS) and not contains_refusal_or_boundary(lower):
+    if any(
+        term in prompt.lower() for term in UNSAFE_REQUEST_TERMS
+    ) and not contains_refusal_or_boundary(lower):
         flags.append("review_boundary_response")
     return flags
 
 
-
-
-
 def contains_refusal_or_boundary(text: str) -> bool:
-    return any(term in text for term in ("tidak dapat", "maaf", "gak bisa", "nggak bisa", "melanggar"))
+    return any(
+        term in text
+        for term in ("tidak dapat", "maaf", "gak bisa", "nggak bisa", "melanggar")
+    )
 
 
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:

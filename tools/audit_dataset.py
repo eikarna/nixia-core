@@ -18,7 +18,6 @@ from typing import Any
 
 import build_dataset
 
-
 ROLE_USER = build_dataset.ROLE_USER
 ROLE_CHAR = build_dataset.ROLE_CHAR
 ROLE_RE = re.compile(r"^(<user>|<char>)\s*(.*)$")
@@ -59,14 +58,18 @@ def main() -> int:
     if args.json_output:
         output = resolve_under_root(root, args.json_output)
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        output.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         print(f"wrote audit report to {output}")
 
     return 0
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Audit Nixia train/valid corpus quality")
+    parser = argparse.ArgumentParser(
+        description="Audit Nixia train/valid corpus quality"
+    )
     parser.add_argument("--train", default="data/curated/train_corpus.txt")
     parser.add_argument("--valid", default="data/curated/valid_corpus.txt")
     parser.add_argument("--build-report", default="data/curated/build_report.json")
@@ -76,7 +79,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def resolve_under_root(root: Path, path: str) -> Path:
-    target = (root / path).resolve() if not Path(path).is_absolute() else Path(path).resolve()
+    target = (
+        (root / path).resolve()
+        if not Path(path).is_absolute()
+        else Path(path).resolve()
+    )
     if target != root and root not in target.parents:
         raise SystemExit(f"refusing path outside project root: {target}")
     return target
@@ -116,7 +123,14 @@ def parse_corpus(path: Path, split: str) -> tuple[list[Dialogue], list[Issue]]:
             content = content.strip()
             if not content:
                 issues.append(
-                    Issue("fail", split, index, "empty_turn", "role marker has no text", sample(line))
+                    Issue(
+                        "fail",
+                        split,
+                        index,
+                        "empty_turn",
+                        "role marker has no text",
+                        sample(line),
+                    )
                 )
                 continue
             if last_role == role:
@@ -145,22 +159,59 @@ def validate_dialogue(dialogue: Dialogue) -> list[Issue]:
     roles = [role for role, _ in dialogue.turns]
 
     if not dialogue.turns:
-        return [Issue("fail", dialogue.split, dialogue.index, "empty_dialogue", "dialogue has no turns", "")]
+        return [
+            Issue(
+                "fail",
+                dialogue.split,
+                dialogue.index,
+                "empty_dialogue",
+                "dialogue has no turns",
+                "",
+            )
+        ]
     if len(dialogue.turns) < 2:
         issues.append(
-            Issue("fail", dialogue.split, dialogue.index, "too_few_turns", "dialogue needs at least 2 turns", sample(dialogue.raw))
+            Issue(
+                "fail",
+                dialogue.split,
+                dialogue.index,
+                "too_few_turns",
+                "dialogue needs at least 2 turns",
+                sample(dialogue.raw),
+            )
         )
     if roles[0] != ROLE_USER:
         issues.append(
-            Issue("warn", dialogue.split, dialogue.index, "starts_with_char", "dialogue should usually start with <user>", sample(dialogue.raw))
+            Issue(
+                "warn",
+                dialogue.split,
+                dialogue.index,
+                "starts_with_char",
+                "dialogue should usually start with <user>",
+                sample(dialogue.raw),
+            )
         )
     if ROLE_USER not in roles:
         issues.append(
-            Issue("fail", dialogue.split, dialogue.index, "missing_user", "dialogue has no <user> turn", sample(dialogue.raw))
+            Issue(
+                "fail",
+                dialogue.split,
+                dialogue.index,
+                "missing_user",
+                "dialogue has no <user> turn",
+                sample(dialogue.raw),
+            )
         )
     if ROLE_CHAR not in roles:
         issues.append(
-            Issue("fail", dialogue.split, dialogue.index, "missing_char", "dialogue has no <char> turn", sample(dialogue.raw))
+            Issue(
+                "fail",
+                dialogue.split,
+                dialogue.index,
+                "missing_char",
+                "dialogue has no <char> turn",
+                sample(dialogue.raw),
+            )
         )
 
     for role, text in dialogue.turns:
@@ -243,7 +294,9 @@ def build_audit_report(
         "build_report_summary": summarize_build_report(build_report),
         "quality_checks": checks,
         "issue_counts": dict(issue_counts),
-        "issue_examples": [issue_to_dict(issue) for issue in issues[: args.max_examples]],
+        "issue_examples": [
+            issue_to_dict(issue) for issue in issues[: args.max_examples]
+        ],
         "recommendations": recommendations(checks, build_report, synthetic_ratio),
     }
 
@@ -269,22 +322,36 @@ def split_stats_for(dialogues: list[Dialogue]) -> dict[str, Any]:
         "turns": sum(turn_counts),
         "avg_turns": round(mean(turn_counts), 2),
         "multi_turn_dialogues": sum(1 for count in turn_counts if count >= 4),
-        "multi_turn_ratio": round(ratio(sum(1 for count in turn_counts if count >= 4), len(dialogues)), 4),
+        "multi_turn_ratio": round(
+            ratio(sum(1 for count in turn_counts if count >= 4), len(dialogues)), 4
+        ),
         "avg_chars_per_turn": round(mean(turn_lengths), 2),
         "p95_chars_per_turn": percentile(turn_lengths, 95),
         "max_chars_per_turn": max(turn_lengths) if turn_lengths else 0,
         "distinct_user_openers": distinct_prefix_count(dialogues, ROLE_USER),
         "distinct_char_openers": distinct_prefix_count(dialogues, ROLE_CHAR),
-        "top_char_prefixes": [{"prefix": prefix, "count": count} for prefix, count in top_prefixes],
+        "top_char_prefixes": [
+            {"prefix": prefix, "count": count} for prefix, count in top_prefixes
+        ],
     }
 
 
 def char_response_prefixes(dialogues: list[Dialogue]) -> list[str]:
-    return [turn_prefix(text) for dialogue in dialogues for role, text in dialogue.turns if role == ROLE_CHAR]
+    return [
+        turn_prefix(text)
+        for dialogue in dialogues
+        for role, text in dialogue.turns
+        if role == ROLE_CHAR
+    ]
 
 
 def distinct_prefix_count(dialogues: list[Dialogue], role_filter: str) -> int:
-    prefixes = {turn_prefix(text) for dialogue in dialogues for role, text in dialogue.turns if role == role_filter}
+    prefixes = {
+        turn_prefix(text)
+        for dialogue in dialogues
+        for role, text in dialogue.turns
+        if role == role_filter
+    }
     prefixes.discard("")
     return len(prefixes)
 
@@ -316,7 +383,7 @@ def extract_synthetic_ratio(report: dict[str, Any] | None) -> float | None:
     if isinstance(metadata.get("synthetic_ratio"), (int, float)):
         return float(metadata["synthetic_ratio"])
     stats = report.get("stats") or {}
-    synthetic = ((stats.get("synthetic_nixia_style") or {}).get("accepted") or 0)
+    synthetic = (stats.get("synthetic_nixia_style") or {}).get("accepted") or 0
     total = report.get("total_dialogues") or 0
     return synthetic / total if total else None
 
@@ -354,24 +421,98 @@ def quality_checks(
     top_char_prefix_ratio: float,
 ) -> list[dict[str, Any]]:
     checks: list[dict[str, Any]] = []
-    add_check(checks, fail_issues == 0, "format_and_content", "fail", f"{fail_issues} fail-level issue(s)")
-    add_check(checks, duplicate_train == 0, "train_duplicates", "warn", f"{duplicate_train} duplicate train dialogue(s)")
-    add_check(checks, duplicate_valid == 0, "valid_duplicates", "warn", f"{duplicate_valid} duplicate valid dialogue(s)")
-    add_check(checks, overlap_count == 0, "train_valid_overlap", "fail", f"{overlap_count} duplicate dialogue(s) across train/valid")
-    add_check(checks, train_count >= 5_000, "train_size_target", "warn", f"train has {train_count}; target 5k+ curated dialogues")
-    add_check(checks, valid_count >= 500, "valid_size_target", "warn", f"valid has {valid_count}; target 500+ held-out dialogues")
-    add_check(checks, train_multi_turn_ratio >= 0.35, "train_multi_turn", "warn", f"train multi-turn ratio {train_multi_turn_ratio:.1%}; target 35%+")
-    add_check(checks, valid_multi_turn_ratio >= 0.35, "valid_multi_turn", "warn", f"valid multi-turn ratio {valid_multi_turn_ratio:.1%}; target 35%+")
-    add_check(checks, top_char_prefix_ratio <= 0.08, "response_template_repetition", "warn", f"top char prefix ratio {top_char_prefix_ratio:.1%}; target <= 8%")
+    add_check(
+        checks,
+        fail_issues == 0,
+        "format_and_content",
+        "fail",
+        f"{fail_issues} fail-level issue(s)",
+    )
+    add_check(
+        checks,
+        duplicate_train == 0,
+        "train_duplicates",
+        "warn",
+        f"{duplicate_train} duplicate train dialogue(s)",
+    )
+    add_check(
+        checks,
+        duplicate_valid == 0,
+        "valid_duplicates",
+        "warn",
+        f"{duplicate_valid} duplicate valid dialogue(s)",
+    )
+    add_check(
+        checks,
+        overlap_count == 0,
+        "train_valid_overlap",
+        "fail",
+        f"{overlap_count} duplicate dialogue(s) across train/valid",
+    )
+    add_check(
+        checks,
+        train_count >= 5_000,
+        "train_size_target",
+        "warn",
+        f"train has {train_count}; target 5k+ curated dialogues",
+    )
+    add_check(
+        checks,
+        valid_count >= 500,
+        "valid_size_target",
+        "warn",
+        f"valid has {valid_count}; target 500+ held-out dialogues",
+    )
+    add_check(
+        checks,
+        train_multi_turn_ratio >= 0.35,
+        "train_multi_turn",
+        "warn",
+        f"train multi-turn ratio {train_multi_turn_ratio:.1%}; target 35%+",
+    )
+    add_check(
+        checks,
+        valid_multi_turn_ratio >= 0.35,
+        "valid_multi_turn",
+        "warn",
+        f"valid multi-turn ratio {valid_multi_turn_ratio:.1%}; target 35%+",
+    )
+    add_check(
+        checks,
+        top_char_prefix_ratio <= 0.08,
+        "response_template_repetition",
+        "warn",
+        f"top char prefix ratio {top_char_prefix_ratio:.1%}; target <= 8%",
+    )
     if synthetic_ratio is not None:
-        add_check(checks, synthetic_ratio <= 0.30, "synthetic_ratio", "warn", f"synthetic ratio {synthetic_ratio:.1%}; target <= 30%")
+        add_check(
+            checks,
+            synthetic_ratio <= 0.30,
+            "synthetic_ratio",
+            "warn",
+            f"synthetic ratio {synthetic_ratio:.1%}; target <= 30%",
+        )
     else:
-        checks.append({"name": "synthetic_ratio", "status": "warn", "message": "missing build report; cannot measure synthetic ratio"})
+        checks.append(
+            {
+                "name": "synthetic_ratio",
+                "status": "warn",
+                "message": "missing build report; cannot measure synthetic ratio",
+            }
+        )
     return checks
 
 
-def add_check(checks: list[dict[str, Any]], ok: bool, name: str, fail_status: str, message: str) -> None:
-    checks.append({"name": name, "status": "pass" if ok else fail_status, "message": "ok" if ok else message})
+def add_check(
+    checks: list[dict[str, Any]], ok: bool, name: str, fail_status: str, message: str
+) -> None:
+    checks.append(
+        {
+            "name": name,
+            "status": "pass" if ok else fail_status,
+            "message": "ok" if ok else message,
+        }
+    )
 
 
 def worst_status(statuses: Any) -> str:
@@ -379,7 +520,9 @@ def worst_status(statuses: Any) -> str:
     return max(statuses, key=lambda status: order.get(status, 0), default="pass")
 
 
-def readiness(status: str, train_count: int, valid_count: int, synthetic_ratio: float | None) -> str:
+def readiness(
+    status: str, train_count: int, valid_count: int, synthetic_ratio: float | None
+) -> str:
     if status == "fail":
         return "fix_required_before_training"
     if train_count < 1_000 or valid_count < 100:
@@ -391,23 +534,41 @@ def readiness(status: str, train_count: int, valid_count: int, synthetic_ratio: 
     return "longer_training_candidate"
 
 
-def recommendations(checks: list[dict[str, Any]], build_report: dict[str, Any] | None, synthetic_ratio: float | None) -> list[str]:
+def recommendations(
+    checks: list[dict[str, Any]],
+    build_report: dict[str, Any] | None,
+    synthetic_ratio: float | None,
+) -> list[str]:
     recs = []
     failed = {check["name"] for check in checks if check["status"] != "pass"}
     if "format_and_content" in failed:
-        recs.append("Fix fail-level corpus rows before training; the model will learn any broken format you leave in.")
+        recs.append(
+            "Fix fail-level corpus rows before training; the model will learn any broken format you leave in."
+        )
     if "train_valid_overlap" in failed:
-        recs.append("Rebuild the split so validation has no duplicate dialogues from training.")
+        recs.append(
+            "Rebuild the split so validation has no duplicate dialogues from training."
+        )
     if "train_size_target" in failed or "valid_size_target" in failed:
-        recs.append("Collect more real multi-turn conversations, then rebuild with a 5-10% validation split.")
+        recs.append(
+            "Collect more real multi-turn conversations, then rebuild with a 5-10% validation split."
+        )
     if synthetic_ratio is None:
-        recs.append("Keep build_report.json with the corpus so synthetic/real source mix stays auditable.")
+        recs.append(
+            "Keep build_report.json with the corpus so synthetic/real source mix stays auditable."
+        )
     elif synthetic_ratio > 0.30:
-        recs.append("Reduce synthetic dominance: keep synthetic rows as style seed, not the main corpus.")
+        recs.append(
+            "Reduce synthetic dominance: keep synthetic rows as style seed, not the main corpus."
+        )
     if "response_template_repetition" in failed:
-        recs.append("Add varied answers and remove repeated assistant openings/templates.")
+        recs.append(
+            "Add varied answers and remove repeated assistant openings/templates."
+        )
     if "train_multi_turn" in failed or "valid_multi_turn" in failed:
-        recs.append("Add more 4-10 turn dialogues so the model sees context, not only single-turn QA.")
+        recs.append(
+            "Add more 4-10 turn dialogues so the model sees context, not only single-turn QA."
+        )
     if build_report and (build_report.get("warnings") or []):
         recs.append("Review warnings already emitted by tools/build_dataset.py.")
     return recs
@@ -436,11 +597,15 @@ def print_summary(report: dict[str, Any]) -> None:
     )
     summary = report.get("build_report_summary")
     if summary:
-        print(f"source mix: synthetic_ratio={summary['synthetic_ratio']:.1%} accepted_by_source={summary['accepted_by_source']}")
+        print(
+            f"source mix: synthetic_ratio={summary['synthetic_ratio']:.1%} accepted_by_source={summary['accepted_by_source']}"
+        )
     else:
         print("source mix: missing build report")
 
-    problems = [check for check in report["quality_checks"] if check["status"] != "pass"]
+    problems = [
+        check for check in report["quality_checks"] if check["status"] != "pass"
+    ]
     if problems:
         print("checks needing attention:")
         for check in problems:
