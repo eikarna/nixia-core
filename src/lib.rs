@@ -1,4 +1,9 @@
+pub mod data;
+pub mod error;
+pub mod inference;
 pub mod model;
 pub mod rag;
+pub mod tokenizer;
+pub mod training;
 
-pub use model::{TinyLm, TinyLmConfig};
+pub use error::{NixiaError, Result};
